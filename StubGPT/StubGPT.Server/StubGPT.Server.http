@@ -1,0 +1,6 @@
+@StubGPT.Server_HostAddress = http://localhost:5110
+
+GET {{StubGPT.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
