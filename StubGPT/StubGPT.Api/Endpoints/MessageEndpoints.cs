@@ -1,12 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using StubGPT.Core;
-using System.Net;
-
-namespace StubGPT.Api;
+﻿namespace StubGPT.Api;
 public static class MessageEndpoints
 {
     #region Fields..
@@ -22,14 +14,15 @@ public static class MessageEndpoints
 
     public static void SendMessage(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost($"{_basePath}/getSystemHealth", async ([FromServices] IChatApiService chatApiService,
-                                                                 [FromBody] SendMessageRequest data) =>
+        endpoints.MapPost($"{_basePath}/sendMessage", async ([FromServices] IChatApiService chatApiService,
+                                                             [FromBody] SendMessageRequest data) =>
         {
             var httpStatusCode = HttpStatusCode.OK;
             object? responseData = null;
 
             return Results.Json(responseData, statusCode: (int)httpStatusCode);
         })
+        .AllowAnonymous()
         .Produces<SendMessageResponse>()
         .WithName(nameof(SendMessage))
         .WithTags(_tag);

@@ -66,8 +66,8 @@ public class Program
 
     private static void ConfigureKestrelHost(WebHostBuilderContext hostContext, KestrelServerOptions options)
     {
-        options.ListenAnyIP(5080);
-        options.ListenAnyIP(5081, options => options.UseHttps());
+        options.ListenAnyIP(5110);
+        options.ListenAnyIP(7078, options => options.UseHttps());
     } 
     #endregion Methods..
 }
