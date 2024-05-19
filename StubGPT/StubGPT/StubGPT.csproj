@@ -28,9 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StubGPT.Api\StubGPT.Api.csproj" />
     <ProjectReference Include="..\StubGPT.Client\StubGPT.Client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\StubGPT.Common\StubGPT.Common.csproj" />
+    <ProjectReference Include="..\StubGPT.Core\StubGPT.Core.csproj" />
   </ItemGroup>
 
 </Project>
