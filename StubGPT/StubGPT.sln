@@ -1,11 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34902.65
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StubGPT.Server", "StubGPT.Server\StubGPT.Server.csproj", "{F446E6B0-B363-4551-913A-43D336C6FC92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StubGPT", "StubGPT\StubGPT.csproj", "{F446E6B0-B363-4551-913A-43D336C6FC92}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "stubgpt.client", "stubgpt.client\stubgpt.client.esproj", "{59B00155-59AC-4078-8BE4-DEE814ECA57D}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "StubGPT.Client", "StubGPT.Client\StubGPT.Client.esproj", "{59B00155-59AC-4078-8BE4-DEE814ECA57D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

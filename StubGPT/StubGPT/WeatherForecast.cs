@@ -1,4 +1,4 @@
-namespace StubGPT.Server;
+namespace StubGPT;
 
 public class WeatherForecast
 {

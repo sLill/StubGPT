@@ -1,5 +1,5 @@
 
-namespace StubGPT.Server;
+namespace StubGPT;
 
 public class Program
 {
