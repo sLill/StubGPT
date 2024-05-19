@@ -1,5 +1,5 @@
 ﻿namespace StubGPT.Core;
-public class OpenAIService : IOpenAIService
+public class ChatGPTApiService : IChatApiService
 {
     #region Fields..
     #endregion Fields..

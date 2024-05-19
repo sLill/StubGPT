@@ -1,5 +1,5 @@
 ﻿namespace StubGPT.Core;
-public interface IOpenAIService
+public interface IChatApiService
 {
     #region Methods..
     #endregion Methods..

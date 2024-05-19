@@ -8,10 +8,12 @@ public class Program
 
         // Settings
         builder.Configuration.AddJsonFile("appsettings.json");
-        //builder.Services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
         // Services
-        builder.Services.AddScoped<IOpenAIService, OpenAIService>();
+        builder.Services.AddServiceModule<ConfigurationServiceModule, IConfiguration>(builder.Configuration);
+        builder.Services.AddServiceModule<AuthenticationServiceModule, IConfiguration>(builder.Configuration);
+
+        builder.Services.AddScoped<IChatApiService, ChatGPTApiService>();
         builder.Services.AddAuthorization();
         builder.Services.AddHttpClient();
 
@@ -53,13 +55,13 @@ public class Program
         app.UseRouting();
 
         //app.UseCors("AllowAnyOrigin");
+        //app.UseAuthentication();
         //app.UseAuthorization();
 
-        //app.UseEndpoints(endpoints =>
-        //{
-        //    SystemEndpoints.Register(endpoints);
-        //    PlayerEndpoints.Register(endpoints);
-        //});
+        app.UseEndpoints(endpoints =>
+        {
+            MessageEndpoints.Register(endpoints);
+        });
     }
 
     private static void ConfigureKestrelHost(WebHostBuilderContext hostContext, KestrelServerOptions options)
