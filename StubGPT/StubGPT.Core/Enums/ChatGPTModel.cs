@@ -1,6 +1,6 @@
 ﻿namespace StubGPT.Core;
 public enum ChatGPTModel
 {
-    [Value("GPT-4o")]
+    [Value("gpt-4o")]
     GPT4o
 }

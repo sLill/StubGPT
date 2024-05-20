@@ -21,21 +21,21 @@ public class ChatGPTApiService : IChatApiService
     #endregion Constructors..
 
     #region Methods..			
-    public async Task<string?> SendMessageAsync(string message, string rolePreamble = "You are a helpful assistant")
+    public async Task<string?> SendMessageAsync(string message, string rolePreamble = "You are a helpful assistant.")
     {
-        var conversation = new List<MessageRecord>() 
+        var conversation = new List<object>() 
         { 
-           new MessageRecord() { Role = "system", Content = rolePreamble }
+           new { role = "system", content = rolePreamble }
         };
 
         return await SendMessageAsync(message, conversation);
     }
 
-    public async Task<string?> SendMessageAsync(string message, List<MessageRecord> conversation)
+    public async Task<string?> SendMessageAsync(string message, List<object> conversation)
     {
         string? result = null;
 
-        conversation.Add(new MessageRecord() { Role = "user", Content = message });
+        conversation.Add(new { role = "user", content = message });
 
         var requestBody = new
         {
@@ -48,11 +48,35 @@ public class ChatGPTApiService : IChatApiService
         {
             var responseJson = await response.Content.ReadAsStringAsync();
             var chatGPTResponse = JsonSerializer.Deserialize<ChatGPTChatResponse>(responseJson);
-            if (chatGPTResponse!.Choices?.Any() ?? false)
-                result = chatGPTResponse.Choices[0].Message!.Content;
+            if (chatGPTResponse!.choices?.Any() ?? false)
+                result = chatGPTResponse.choices[0].message!.content;
         }
 
         return result;
+    }
+
+    private async Task<HttpResponseMessage?> GetAsync(string relativeEndpoint)
+    {
+        HttpResponseMessage? response = null;
+
+        try
+        {
+            string requestUri = $"{BASE_URL}/{VERSION}/{relativeEndpoint.Trim('\\', '/')}";
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_chatGPTApiConfiguration.Value.ApiKey}");
+                httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", _chatGPTApiConfiguration.Value.OrganizationId);
+                httpClient.DefaultRequestHeaders.Add("OpenAI-Project", _chatGPTApiConfiguration.Value.ProjectId);
+
+                response = await httpClient.GetAsync(requestUri);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"{nameof(ChatGPTApiService)}.{nameof(GetAsync)}: {ex.Message} - {ex.StackTrace}");
+        }
+
+        return response;
     }
 
     private async Task<HttpResponseMessage?> PostAsync(string relativeEndpoint, object requestBody)
@@ -67,8 +91,10 @@ public class ChatGPTApiService : IChatApiService
 
             using (var httpClient = new HttpClient() )
             {
-                httpClient.DefaultRequestHeaders.Clear();
                 httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_chatGPTApiConfiguration.Value.ApiKey}");
+                httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", _chatGPTApiConfiguration.Value.OrganizationId);
+                httpClient.DefaultRequestHeaders.Add("OpenAI-Project", _chatGPTApiConfiguration.Value.ProjectId);
+
                 response = await httpClient.PostAsync(requestUri, httpContent);
             }
         }
