@@ -35,9 +35,6 @@ const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_H
 
 env.BROWSER = "chrome"
 
-console.log(env.ASPNETCORE_HTTPS_PORT + ' ' + env.ASPNETCORE_URLS);
-//console.log('Target Url: ' + target);
-
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [plugin()],

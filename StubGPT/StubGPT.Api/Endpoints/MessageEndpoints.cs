@@ -20,6 +20,17 @@ public static class MessageEndpoints
             var httpStatusCode = HttpStatusCode.OK;
             object? responseData = null;
 
+            string? response = null;
+            if (data.Conversation?.Any() ?? false)
+                response = await chatApiService.SendMessageAsync(data.Message, data.Conversation);
+            else
+                response = await chatApiService.SendMessageAsync(data.Message);
+
+            if (response == null)
+                httpStatusCode = HttpStatusCode.InternalServerError;
+            else 
+                responseData = new SendMessageResponse() { Response = response };
+
             return Results.Json(responseData, statusCode: (int)httpStatusCode);
         })
         .AllowAnonymous()
