@@ -1,45 +1,45 @@
 <script setup>
+    import { ref, onMounted } from 'vue';
+
+    const message = ref('');
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
     <div class="wrapper">
-        <div>StubGPT</div>
+        <div class="chat-container">
+            <InputText class="message" placeholder="Message" v-model="message" />
+        </div>
     </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
+.wrapper {
     display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
+    align-items: center;
+    justify-content: center;
     flex-wrap: wrap;
-  }
+
+    width: 100%;
+    height: 100%;
+
+}
+
+.chat-container {
+    display: grid;
+    grid-template: 1fr auto / 1fr;
+    grid-template-areas:
+        "conversation"
+        "message";
+    
+    width: 80%;
+    height: 90%;
+}
+
+.conversation {
+    grid-area: conversation;
+}
+
+.message {
+    grid-area: message;
 }
 </style>

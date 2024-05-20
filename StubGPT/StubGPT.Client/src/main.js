@@ -2,5 +2,8 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
+import primevuePlugins from './primevue-plugins';
 
-createApp(App).mount('#app')
+const app = createApp(App);
+app.use(primevuePlugins);
+app.mount('#app');
