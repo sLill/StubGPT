@@ -1,7 +1,22 @@
 <script setup>
     import { ref, onMounted } from 'vue';
+    import useEndpointService from './composables/services/useEndpointService';
+
+    const endpointService = useEndpointService();
 
     const message = ref('');
+
+    // Methods
+    const messageInput_KeyPressed = async (event) => {
+        if (event.key == 'Enter')
+            var response = await endpointService.postData(`/api/v1/message/sendMessage`, {
+  "conversation": [
+    "string"
+  ],
+  "message": "sdfsdssssss",
+  "rolePreamble": "string"
+});
+    }
 </script>
 
 <template>
@@ -11,7 +26,7 @@
                 <p class="conversation-user-message">How do I do the thing</p>
             </div>
 
-            <InputText class="message" placeholder="Message" v-model="message" />
+            <InputText class="message" placeholder="Message" v-model="message" @keypress.enter="messageInput_KeyPressed"/>
         </div>
     </div>
 </template>

@@ -6,8 +6,6 @@ public class Program
     #region Methods..
     public static void Main(string[] args)
     {
-        SetEnvironmentVariables();
-
         var builder = WebApplication.CreateBuilder(args);
 
         // Settings
@@ -16,10 +14,19 @@ public class Program
         // Services
         builder.Services.AddServiceModule<ConfigurationServiceModule, IConfiguration>(builder.Configuration);
         builder.Services.AddServiceModule<AuthenticationServiceModule, IConfiguration>(builder.Configuration);
-
         builder.Services.AddScoped<IChatApiService, ChatGPTApiService>();
+
         builder.Services.AddAuthorization();
         builder.Services.AddHttpClient();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAnyOrigin", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
+        });
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGenNewtonsoftSupport();
@@ -27,7 +34,6 @@ public class Program
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "StubGPT Api", Version = "v1" });
         });
-
 
         // Web Host
         if (builder.Environment.IsDevelopment())
@@ -37,7 +43,6 @@ public class Program
         }
 
         builder.WebHost.ConfigureKestrel(ConfigureKestrelHost);
-        builder.WebHost.UseUrls($"http://localhost:5110");
 
         var app = builder.Build();
 
@@ -67,7 +72,7 @@ public class Program
         app.UseStaticFiles();
         app.UseRouting();
 
-        //app.UseCors("AllowAnyOrigin");
+        app.UseCors("AllowAnyOrigin");
         //app.UseAuthentication();
         //app.UseAuthorization();
 
@@ -82,17 +87,5 @@ public class Program
         options.ListenAnyIP(5110);
         //options.ListenAnyIP(5111, options => options.UseHttps());
     } 
-
-    private static void SetEnvironmentVariables()
-    {
-        var environmentVariables = new Dictionary<string, string>
-        {
-            { "ASPNETCORE_ENVIRONMENT", "Development" },
-            { "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES", "Microsoft.AspNetCore.SpaProxy" }
-        };
-
-        foreach (var environmentVariable in environmentVariables)
-            Environment.SetEnvironmentVariable(environmentVariable.Key, environmentVariable.Value);
-    }
     #endregion Methods..
 }

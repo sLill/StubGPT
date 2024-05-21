@@ -23,11 +23,7 @@ public class ChatGPTApiService : IChatApiService
     #region Methods..			
     public async Task<string?> SendMessageAsync(string message, string rolePreamble = "You are a helpful assistant.")
     {
-        var conversation = new List<object>() 
-        { 
-           new { role = "system", content = rolePreamble }
-        };
-
+        var conversation = new List<object>() { new { role = "system", content = rolePreamble } };
         return await SendMessageAsync(message, conversation);
     }
 
