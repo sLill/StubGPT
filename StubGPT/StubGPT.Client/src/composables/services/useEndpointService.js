@@ -11,8 +11,7 @@ export default function useEndpointService() {
             response.value = await client.get(endpoint);
         } 
         catch (err) {
-            error.value = err.message;
-            console.log(error);
+            console.log(err);
         }
 
         return response.value;
@@ -27,8 +26,7 @@ export default function useEndpointService() {
             response.value = await client.post(endpoint, data);
         } 
         catch (err) {
-            error.value = err.message;
-            console.log(error);
+            console.log(err);
         }
 
         return response.value;

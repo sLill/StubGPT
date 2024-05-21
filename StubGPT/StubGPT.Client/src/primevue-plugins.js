@@ -5,7 +5,7 @@
 import PrimeVue from 'primevue/config';
 
 // CSS
-import 'primevue/resources/themes/aura-dark-purple/theme.css'
+import 'primevue/resources/themes/aura-dark-cyan/theme.css'
 import 'primevue/resources/primevue.min.css';
 import 'primeicons/primeicons.css';
 
@@ -76,7 +76,7 @@ import Slider from 'primevue/slider';
 //import Tag from 'primevue/tag';
 //import Toolbar from 'primevue/toolbar';
 import Tooltip from 'primevue/tooltip';
-import Textarea from 'primevue/textarea';
+import TextArea from 'primevue/textarea';
 //import Timeline from 'primevue/timeline';
 import ToggleButton from 'primevue/togglebutton';
 //import Tree from 'primevue/tree';
@@ -165,7 +165,7 @@ export default {
         //app.component('Tag', Tag);
         //app.component('Toolbar', Toolbar);
         app.component('Tooltip', Tooltip);
-        app.component('Textarea', Textarea);
+        app.component('TextArea', TextArea);
         //app.component('Timeline', Timeline);
         app.component('ToggleButton', ToggleButton);
         //app.component('Tree', Tree);

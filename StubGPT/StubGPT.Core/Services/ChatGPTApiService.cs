@@ -21,16 +21,11 @@ public class ChatGPTApiService : IChatApiService
     #endregion Constructors..
 
     #region Methods..			
-    public async Task<string?> SendMessageAsync(string message, string rolePreamble = "You are a helpful assistant.")
-    {
-        var conversation = new List<object>() { new { role = "system", content = rolePreamble } };
-        return await SendMessageAsync(message, conversation);
-    }
-
-    public async Task<string?> SendMessageAsync(string message, List<object> conversation)
+    public async Task<string?> SendMessageAsync(string message, List<object>? conversation)
     {
         string? result = null;
 
+        conversation = conversation ?? new List<object>();
         conversation.Add(new { role = "user", content = message });
 
         var requestBody = new

@@ -1,5 +1,3 @@
-using Microsoft.OpenApi.Models;
-
 namespace StubGPT;
 public class Program
 {

@@ -1,32 +1,64 @@
 <script setup>
-    import { ref, onMounted } from 'vue';
+    import { ref, computed, onMounted } from 'vue';
     import useEndpointService from './composables/services/useEndpointService';
 
     const endpointService = useEndpointService();
 
+    const conversation = ref([]);
+
+    const systemMessage = ref('You are a helpful assistant');
     const message = ref('');
 
     // Methods
-    const messageInput_KeyPressed = async (event) => {
-        if (event.key == 'Enter')
-            var response = await endpointService.postData(`/api/v1/message/sendMessage`, {
-  "conversation": [
-    "string"
-  ],
-  "message": "sdfsdssssss",
-  "rolePreamble": "string"
-});
+    const messageInput_Enter = async (event) => {
+        if (!event.shiftKey) {
+            event.preventDefault();
+
+            if (conversation.value.length == 0)
+                conversation.value.push({ role: "system", content: systemMessage.value });
+
+            endpointService.postData(`/api/v1/message/sendMessage`, { "conversation": conversation.value, "message": message.value, "rolePreamble": null })
+            .then(response => {
+                if (response) {
+                    conversation.value.push({ role: "assistant", content: response.value });
+                }
+            });
+
+            conversation.value.push({ role: "user", content: message.value });
+        }
     }
+
+    const conversationMessageStyle = computed(() => (message) => {
+        switch (message.role) {
+            case 'system':
+                return 'conversation-system-message message';
+
+            case 'user':
+                return 'conversation-user-message message';
+
+            case 'assistant':
+                return 'conversation-assistant-message message';
+        }
+    });
 </script>
 
 <template>
     <div class="wrapper">
         <div class="chat-container">
             <div class="conversation-container">
-                <p class="conversation-user-message">How do I do the thing</p>
+                <p v-for="conversationMessage in conversation" :key="conversationMessage" :class="conversationMessageStyle(conversationMessage)">
+                    {{ conversationMessage.content }}
+                </p>
             </div>
 
-            <InputText class="message" placeholder="Message" v-model="message" @keypress.enter="messageInput_KeyPressed"/>
+            <div class="message-container">
+                <FloatLabel v-if="conversation.length == 0">
+                    <label for="systemMessage">System Message</label>
+                    <TextArea id="systemMessage" class="system-message-input" placeholder="System Message" v-model="systemMessage" />
+                </FloatLabel>
+                <TextArea class="message-input" placeholder="Message" v-model="message" 
+                    @keypress.enter="messageInput_Enter" autoResize />
+            </div>
         </div>
     </div>
 </template>
@@ -40,7 +72,6 @@
 
     width: 100%;
     height: 100%;
-
 }
 
 .chat-container {
@@ -59,11 +90,52 @@
     grid-area: conversation;
 }
 
+.message {
+    padding: 8px;
+    border-radius: 5px;
+}
+
 .conversation-user-message {
+    background: var(--surface-50);
+    width: 80%;
+
+    position: relative;
+    left: 20%;
+}
+
+.conversation-system-message {
 
 }
 
-.message {
+.conversation-assistant-message {
+
+}
+
+.message-container{
     grid-area: message;
+}
+
+.system-message-input {
+    resize: none;
+    align-content: center;
+    color: var(--text-color);
+    opacity: 0.5;
+    transition: background-color 0.3s ease;
+
+    width: 100%;
+    height: auto;
+}
+
+.system-message-input:focus {
+    opacity: 1;
+}
+
+.message-input {
+    resize: none;
+    align-content: center;
+
+    color: var(--text-color);
+    width: 100%;
+    height: auto;
 }
 </style>
