@@ -30,9 +30,6 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     }
 }
 
-const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
-    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7078';
-
 env.BROWSER = "chrome"
 
 // https://vitejs.dev/config/
@@ -42,7 +39,7 @@ export default defineConfig({
     server: {
         proxy: {
             '^/api': {
-                target,
+                target: 'http://localhost:5110',
                 changeOrigin: true,
                 secure: false
             }

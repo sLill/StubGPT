@@ -7,6 +7,10 @@
 <template>
     <div class="wrapper">
         <div class="chat-container">
+            <div class="conversation-container">
+                <p class="conversation-user-message">How do I do the thing</p>
+            </div>
+
             <InputText class="message" placeholder="Message" v-model="message" />
         </div>
     </div>
@@ -26,6 +30,7 @@
 
 .chat-container {
     display: grid;
+    grid-gap: 20px;
     grid-template: 1fr auto / 1fr;
     grid-template-areas:
         "conversation"
@@ -35,8 +40,12 @@
     height: 90%;
 }
 
-.conversation {
+.conversation-container {
     grid-area: conversation;
+}
+
+.conversation-user-message {
+
 }
 
 .message {

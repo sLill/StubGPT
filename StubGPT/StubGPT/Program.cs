@@ -1,9 +1,13 @@
+using Microsoft.OpenApi.Models;
+
 namespace StubGPT;
 public class Program
 {
     #region Methods..
     public static void Main(string[] args)
     {
+        SetEnvironmentVariables();
+
         var builder = WebApplication.CreateBuilder(args);
 
         // Settings
@@ -17,6 +21,14 @@ public class Program
         builder.Services.AddAuthorization();
         builder.Services.AddHttpClient();
 
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGenNewtonsoftSupport();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "StubGPT Api", Version = "v1" });
+        });
+
+
         // Web Host
         if (builder.Environment.IsDevelopment())
         {
@@ -25,6 +37,7 @@ public class Program
         }
 
         builder.WebHost.ConfigureKestrel(ConfigureKestrelHost);
+        builder.WebHost.UseUrls($"http://localhost:5110");
 
         var app = builder.Build();
 
@@ -49,7 +62,7 @@ public class Program
         }
 
         app.UseForwardedHeaders();
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection();
         app.UseDefaultFiles();
         app.UseStaticFiles();
         app.UseRouting();
@@ -67,7 +80,19 @@ public class Program
     private static void ConfigureKestrelHost(WebHostBuilderContext hostContext, KestrelServerOptions options)
     {
         options.ListenAnyIP(5110);
-        options.ListenAnyIP(7078, options => options.UseHttps());
+        //options.ListenAnyIP(5111, options => options.UseHttps());
     } 
+
+    private static void SetEnvironmentVariables()
+    {
+        var environmentVariables = new Dictionary<string, string>
+        {
+            { "ASPNETCORE_ENVIRONMENT", "Development" },
+            { "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES", "Microsoft.AspNetCore.SpaProxy" }
+        };
+
+        foreach (var environmentVariable in environmentVariables)
+            Environment.SetEnvironmentVariable(environmentVariable.Key, environmentVariable.Value);
+    }
     #endregion Methods..
 }
