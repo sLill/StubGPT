@@ -4,3 +4,8 @@ global using System.Text;
 global using System.Text.Json;
 global using System.Diagnostics;
 global using System.Net;
+global using Microsoft.Data.SqlClient;
+global using Microsoft.Extensions.Logging;
+global using StubGPT.Database;
+global using Microsoft.AspNetCore.Http;
+global using System.Security.Claims;

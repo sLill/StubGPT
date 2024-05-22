@@ -7,40 +7,37 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Settings
+        builder.Configuration.Sources.Clear();
         builder.Configuration.AddJsonFile("appsettings.json");
+        builder.Services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
+        builder.Services.Configure<AuthenticationConfiguration>(builder.Configuration.GetSection("AuthenticationConfiguration"));
+        builder.Services.AddTransient<IConfigureOptions<UserConfiguration>, UserConfigurationOptionsProvider>();
+
+        // Logging
+        builder.Services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.AddProvider(new SqlLoggerProvider((category, level) => level >= LogLevel.Error, GetMainConnectionString(builder)));
+        });
 
         // Services
         builder.Services.AddServiceModule<ConfigurationServiceModule, IConfiguration>(builder.Configuration);
         builder.Services.AddServiceModule<AuthenticationServiceModule, IConfiguration>(builder.Configuration);
-        builder.Services.AddScoped<IChatApiService, ChatGPTApiService>();
-
-        builder.Services.AddAuthorization();
-        builder.Services.AddHttpClient();
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowAnyOrigin", builder =>
-            {
-                builder.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            });
-        });
-
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGenNewtonsoftSupport();
-        builder.Services.AddSwaggerGen(options =>
-        {
-            options.SwaggerDoc("v1", new OpenApiInfo { Title = "StubGPT Api", Version = "v1" });
-        });
+        builder.Services.AddServiceModule<ServicesServiceModule>();
+        builder.Services.AddServiceModule<HttpServiceModule>();
+        builder.Services.AddServiceModule<SwaggerServiceModule>();
+        builder.Services.AddServiceModule<RepositoryServiceModule>();
 
         // Web Host
-        if (builder.Environment.IsDevelopment())
-        {
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-        }
-
         builder.WebHost.ConfigureKestrel(ConfigureKestrelHost);
+
+        // Data
+        builder.Services.AddDbContext<MainDbContext>(options =>
+        {
+            options.UseSqlServer(GetMainConnectionString(builder));
+
+            if (builder.Environment.IsDevelopment())
+                options.EnableSensitiveDataLogging();
+        });
 
         var app = builder.Build();
 
@@ -71,12 +68,13 @@ public class Program
         app.UseRouting();
 
         app.UseCors("AllowAnyOrigin");
-        //app.UseAuthentication();
-        //app.UseAuthorization();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.UseEndpoints(endpoints =>
         {
             MessageEndpoints.Register(endpoints);
+            UserEndpoints.Register(endpoints);
         });
     }
 
@@ -84,6 +82,18 @@ public class Program
     {
         options.ListenAnyIP(5110);
         //options.ListenAnyIP(5111, options => options.UseHttps());
-    } 
+    }
+
+    private static string GetMainConnectionString(WebApplicationBuilder builder)
+    {
+        string connectionString = string.Empty;
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            connectionString = builder.Configuration.GetConnectionString("ConnectionString_Main")!;
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            connectionString = builder.Configuration["ConnectionString_Main"]!;
+
+        return connectionString;
+    }
     #endregion Methods..
 }

@@ -29,7 +29,7 @@ public static class MessageEndpoints
 
             return Results.Json(responseData, statusCode: (int)httpStatusCode);
         })
-        .AllowAnonymous()
+        .RequireAuthorization()
         .Produces<SendMessageResponse>()
         .WithName(nameof(SendMessage))
         .WithTags(_tag);

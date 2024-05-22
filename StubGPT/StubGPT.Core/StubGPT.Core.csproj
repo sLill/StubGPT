@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StubGPT.Common\StubGPT.Common.csproj" />
+    <ProjectReference Include="..\StubGPT.Database\StubGPT.Database.csproj" />
   </ItemGroup>
 
 </Project>
