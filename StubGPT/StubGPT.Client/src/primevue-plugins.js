@@ -5,7 +5,7 @@
 import PrimeVue from 'primevue/config';
 
 // CSS
-import 'primevue/resources/themes/aura-dark-cyan/theme.css'
+import 'primevue/resources/themes/aura-dark-indigo/theme.css'
 import 'primevue/resources/primevue.min.css';
 import 'primeicons/primeicons.css';
 

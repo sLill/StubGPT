@@ -1,32 +1,43 @@
 <script setup>
-    import { ref, computed, onMounted } from 'vue';
+    import { ref, computed } from 'vue';
     import useEndpointService from './composables/services/useEndpointService';
 
     const endpointService = useEndpointService();
 
     const conversation = ref([]);
-
     const systemMessage = ref('You are a helpful assistant');
+    const systemMessageFocused = ref(false);
+
     const message = ref('');
+    const messageInputDisabled = ref(false);
 
     // Methods
     const messageInput_Enter = async (event) => {
         if (!event.shiftKey) {
             event.preventDefault();
 
+            messageInputDisabled.value = true;
+
             if (conversation.value.length == 0)
                 conversation.value.push({ role: "system", content: systemMessage.value });
 
-            endpointService.postData(`/api/v1/message/sendMessage`, { "conversation": conversation.value, "message": message.value, "rolePreamble": null })
-            .then(response => {
-                if (response) {
-                    conversation.value.push({ role: "assistant", content: response.value });
-                }
-            });
-
             conversation.value.push({ role: "user", content: message.value });
+
+            message.value = '';
+
+            const response = await endpointService.postData(`/api/v1/message/sendMessage`, { "conversation": conversation.value, "message": message.value });
+
+            if (response && response.status == 200)
+                conversation.value.push({ role: "assistant", content: response.data.response });
+
+            messageInputDisabled.value = false;
         }
     }
+
+    const formattedMessage = computed(() => (inputText) => {
+        return inputText.replace(/```([\s\S]*?)```/g, function(match, code) {
+            return '<pre style="background: var(--surface-50); padding: 20px; border-radius: 5px;"><code>' + code.trim() + '</code></pre>';});
+    });
 
     const conversationMessageStyle = computed(() => (message) => {
         switch (message.role) {
@@ -46,18 +57,17 @@
     <div class="wrapper">
         <div class="chat-container">
             <div class="conversation-container">
-                <p v-for="conversationMessage in conversation" :key="conversationMessage" :class="conversationMessageStyle(conversationMessage)">
-                    {{ conversationMessage.content }}
-                </p>
+                <p v-for="conversationMessage in conversation" :key="conversationMessage" :class="conversationMessageStyle(conversationMessage)" v-html="formattedMessage(conversationMessage.content)"></p>
             </div>
 
             <div class="message-container">
                 <FloatLabel v-if="conversation.length == 0">
                     <label for="systemMessage">System Message</label>
-                    <TextArea id="systemMessage" class="system-message-input" placeholder="System Message" v-model="systemMessage" />
+                    <TextArea id="systemMessage" class="system-message-input" placeholder="System Message"
+                              v-model="systemMessage" :autoResize="systemMessageFocused" @focus="systemMessageFocused = true"/>
                 </FloatLabel>
                 <TextArea class="message-input" placeholder="Message" v-model="message" 
-                    @keypress.enter="messageInput_Enter" autoResize />
+                    @keypress.enter="messageInput_Enter" :disabled="messageInputDisabled" autoResize autofocus />
             </div>
         </div>
     </div>
@@ -104,7 +114,7 @@
 }
 
 .conversation-system-message {
-
+    color: var(--text-color-secondary);
 }
 
 .conversation-assistant-message {
@@ -137,5 +147,14 @@
     color: var(--text-color);
     width: 100%;
     height: auto;
+}
+
+.message-input:disabled {
+    opacity: 0.6;
+    background: var(--surface-0);   
+}
+
+.code-block {
+    background-color: red;
 }
 </style>

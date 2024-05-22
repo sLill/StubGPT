@@ -21,26 +21,31 @@ public class ChatGPTApiService : IChatApiService
     #endregion Constructors..
 
     #region Methods..			
-    public async Task<string?> SendMessageAsync(string message, List<object>? conversation)
+    public async Task<string?> SendMessageAsync(string? message, List<object>? conversation)
     {
         string? result = null;
 
         conversation = conversation ?? new List<object>();
-        conversation.Add(new { role = "user", content = message });
 
-        var requestBody = new
-        {
-            model = Model.GetCustomAttribute<ValueAttribute>()!.Value,
-            messages = conversation
-        };
+        if (!string.IsNullOrEmpty(message))
+            conversation.Add(new { role = "user", content = message });
 
-        var response = await PostAsync("/chat/completions", requestBody);
-        if (response?.StatusCode == HttpStatusCode.OK)
+        if (conversation.Any())
         {
-            var responseJson = await response.Content.ReadAsStringAsync();
-            var chatGPTResponse = JsonSerializer.Deserialize<ChatGPTChatResponse>(responseJson);
-            if (chatGPTResponse!.choices?.Any() ?? false)
-                result = chatGPTResponse.choices[0].message!.content;
+            var requestBody = new
+            {
+                model = Model.GetCustomAttribute<ValueAttribute>()!.Value,
+                messages = conversation
+            };
+
+            var response = await PostAsync("/chat/completions", requestBody);
+            if (response?.StatusCode == HttpStatusCode.OK)
+            {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                var chatGPTResponse = JsonSerializer.Deserialize<ChatGPTChatResponse>(responseJson);
+                if (chatGPTResponse!.choices?.Any() ?? false)
+                    result = chatGPTResponse.choices[0].message!.content;
+            }
         }
 
         return result;
