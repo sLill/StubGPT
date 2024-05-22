@@ -1,8 +1,11 @@
 <script setup>
     import { ref, computed } from 'vue';
-    import useEndpointService from './composables/services/useEndpointService';
+    import useEndpointService from './composables/services/useEndpointService.js';
+    import useDialogService from './composables/services/useDialogService.js';
+    import PromptShortcuts from './components/PromptShortcuts.vue';
 
     const endpointService = useEndpointService();
+    const dialogService = useDialogService();
 
     const conversation = ref([]);
     const systemMessage = ref('You are a helpful assistant');
@@ -12,6 +15,21 @@
     const messageInputDisabled = ref(false);
 
     // Methods
+    // const showSettingsDialog = () => {
+
+    // };
+
+    const showPromptShortcutsDialog = () => {
+        dialogService.showDynamicDialog({ 
+            content: PromptShortcuts, 
+            data: {},
+            callbacks: {
+                selectedPrompt: (prompt) => message.value = prompt ? prompt : message.value,
+                selectedSystemPrompt: (systemPrompt) => systemMessage.value = systemPrompt ? systemPrompt : systemMessage.value
+            }
+        });
+    };
+
     const messageInput_Enter = async (event) => {
         if (!event.shiftKey) {
             event.preventDefault();
@@ -33,6 +51,10 @@
             messageInputDisabled.value = false;
         }
     }
+
+    const promptShortcutsButton_Click = () => {
+        showPromptShortcutsDialog();
+    };
 
     const formattedMessage = computed(() => (inputText) => {
         return inputText.replace(/```([\s\S]*?)```/g, function(match, code) {
@@ -61,16 +83,28 @@
             </div>
 
             <div class="message-container">
-                <FloatLabel v-if="conversation.length == 0">
-                    <label for="systemMessage">System Message</label>
-                    <TextArea id="systemMessage" class="system-message-input" placeholder="System Message"
-                              v-model="systemMessage" :autoResize="systemMessageFocused" @focus="systemMessageFocused = true"/>
-                </FloatLabel>
-                <TextArea class="message-input" placeholder="Message" v-model="message" 
-                    @keypress.enter="messageInput_Enter" :disabled="messageInputDisabled" autoResize autofocus />
+                <div class="fill">
+                    <FloatLabel v-if="conversation.length == 0">
+                        <label for="systemMessage">System Message</label>
+                        <TextArea id="systemMessage" class="system-message-input" placeholder="System Message"
+                                  v-model="systemMessage" :autoResize="systemMessageFocused" @focus="systemMessageFocused = true"/>
+                    </FloatLabel>
+
+                    <div class="message-input-container">
+                        <TextArea class="message-input" placeholder="Message" v-model="message" 
+                            @keypress.enter="messageInput_Enter" :disabled="messageInputDisabled" autoResize autofocus />
+                    
+                    </div>
+                </div>
+
+                <Button style="margin: 0 0 1px 5px; align-self: end; width: 50px; height: 50px;" @click="promptShortcutsButton_Click">
+                    <FontAwesomeIcon style="font-size: 1rem;" :icon="['fas', 'file-pen']" />
+                </Button>
             </div>
         </div>
     </div>
+
+    <DynamicDialog />
 </template>
 
 <style scoped>
@@ -92,7 +126,7 @@
         "conversation"
         "message";
     
-    width: 80%;
+    width: 85%;
     height: 90%;
 }
 
@@ -121,8 +155,18 @@
 
 }
 
-.message-container{
+.message-container {
     grid-area: message;
+    display: flex;
+
+    width: 100%;
+    justify-self: center;
+}
+
+@media screen and (min-width: 1280px) {
+    .message-container {
+        max-width: 1280px;
+    }
 }
 
 .system-message-input {
@@ -138,6 +182,10 @@
 
 .system-message-input:focus {
     opacity: 1;
+}
+
+.message-input-container {
+    display: flex;
 }
 
 .message-input {
