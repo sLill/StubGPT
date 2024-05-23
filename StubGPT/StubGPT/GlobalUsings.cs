@@ -11,6 +11,5 @@ global using Microsoft.AspNetCore.RateLimiting;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Options;
 global using StubGPT.Database;
-global using StubGPT.ServiceModules;
 global using System.Runtime.InteropServices;
 global using System.Threading.RateLimiting;

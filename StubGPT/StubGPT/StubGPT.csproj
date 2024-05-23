@@ -7,6 +7,7 @@
     <SpaRoot>..\StubGPT.Client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:5193</SpaProxyServerUrl>
+    <UserSecretsId>916cf1d7-3641-406e-a800-6acd21451a64</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

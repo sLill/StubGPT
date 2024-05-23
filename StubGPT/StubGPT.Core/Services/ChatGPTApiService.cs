@@ -7,16 +7,16 @@ public class ChatGPTApiService : IChatApiService
 
     public ChatGPTModel Model { get; set; } = ChatGPTModel.GPT4o;
 
-    private readonly IOptionsSnapshot<ChatGPTApiConfiguration> _chatGPTApiConfiguration;
+    private readonly IOptionsSnapshot<UserConfiguration> _userConfiguration;
     #endregion Fields..
 
     #region Properties..
     #endregion Properties..
 
     #region Constructors..
-    public ChatGPTApiService(IOptionsSnapshot<ChatGPTApiConfiguration> chatGPTApiConfiguration)
+    public ChatGPTApiService(IOptionsSnapshot<UserConfiguration> userConfiguration)
     {
-        _chatGPTApiConfiguration = chatGPTApiConfiguration;
+        _userConfiguration = userConfiguration;
     }
     #endregion Constructors..
 
@@ -60,9 +60,9 @@ public class ChatGPTApiService : IChatApiService
             string requestUri = $"{BASE_URL}/{VERSION}/{relativeEndpoint.Trim('\\', '/')}";
             using (var httpClient = new HttpClient())
             {
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_chatGPTApiConfiguration.Value.ApiKey}");
-                httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", _chatGPTApiConfiguration.Value.OrganizationId);
-                httpClient.DefaultRequestHeaders.Add("OpenAI-Project", _chatGPTApiConfiguration.Value.ProjectId);
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_userConfiguration.Value.OpenAI_ApiKey}");
+                httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", _userConfiguration.Value.OpenAI_OrganizationId);
+                httpClient.DefaultRequestHeaders.Add("OpenAI-Project", _userConfiguration.Value.OpenAI_ProjectId);
 
                 response = await httpClient.GetAsync(requestUri);
             }
@@ -87,9 +87,9 @@ public class ChatGPTApiService : IChatApiService
 
             using (var httpClient = new HttpClient() )
             {
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_chatGPTApiConfiguration.Value.ApiKey}");
-                httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", _chatGPTApiConfiguration.Value.OrganizationId);
-                httpClient.DefaultRequestHeaders.Add("OpenAI-Project", _chatGPTApiConfiguration.Value.ProjectId);
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_userConfiguration.Value.OpenAI_ApiKey}");
+                httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", _userConfiguration.Value.OpenAI_OrganizationId);
+                httpClient.DefaultRequestHeaders.Add("OpenAI-Project", _userConfiguration.Value.OpenAI_ProjectId);
 
                 response = await httpClient.PostAsync(requestUri, httpContent);
             }

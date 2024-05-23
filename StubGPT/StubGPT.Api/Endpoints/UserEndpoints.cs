@@ -9,7 +9,30 @@ public static class UserEndpoints
     #region Methods..
     public static void Register(IEndpointRouteBuilder endpoints)
     {
+        endpoints.AddUser();
         endpoints.Login();
+    }
+
+    public static void AddUser(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost($"{_basePath}/addUser", async ([FromServices] IUserService userService,
+                                                        [FromBody] AddUserRequest data) =>
+        {
+            var httpStatusCode = HttpStatusCode.OK;
+            object? responseData = null;
+
+            var newUser = await userService.AddUserAsync(data.Username, data.Password);
+            if (newUser == null)
+                httpStatusCode = HttpStatusCode.BadRequest;
+            else
+                responseData = new AddUserResponse() { Message = "Success" };
+
+            return Results.Json(responseData, statusCode: (int)httpStatusCode);
+        })
+       .RequireAuthorization(UserClaim.IsAdmin.ToString())
+       .Produces<AddUserResponse>()
+       .WithName(nameof(AddUser))
+       .WithTags(_tag);
     }
 
     public static void Login(this IEndpointRouteBuilder endpoints)

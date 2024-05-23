@@ -7,5 +7,6 @@ public class User : EntityBase
     public string Username { get; set; } = null!;
     public string PasswordHash { get; set; } = null!;
     public string? SessionToken { get; set; }
+    public bool IsAdmin { get; set; }
     #endregion Properties..
 }

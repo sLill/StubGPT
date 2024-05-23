@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace StubGPT.Database;
-public abstract class RepositoryBase
+﻿namespace StubGPT.Database;
+public abstract class RepositoryBase : IRepositoryBase
 {
     #region Fields..
     protected readonly ILogger<RepositoryBase> _logger;

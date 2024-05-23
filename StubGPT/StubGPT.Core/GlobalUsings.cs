@@ -9,3 +9,6 @@ global using Microsoft.Extensions.Logging;
 global using StubGPT.Database;
 global using Microsoft.AspNetCore.Http;
 global using System.Security.Claims;
+global using System.Security.Cryptography;
+global using Microsoft.IdentityModel.Tokens;
+global using System.IdentityModel.Tokens.Jwt;

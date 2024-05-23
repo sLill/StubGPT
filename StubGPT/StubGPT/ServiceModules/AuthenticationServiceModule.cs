@@ -4,7 +4,7 @@ public class AuthenticationServiceModule : IServiceModule<IConfiguration>
     #region Methods..
     public IServiceCollection AddServices(IServiceCollection services, IConfiguration configuration)
     {
-        var authenticationConfiguration = configuration.GetSection("AuthenticationConfiguration").Get<AuthenticationConfiguration>();
+        var authenticationConfiguration = configuration.GetSection("ApplicationConfiguration").Get<ApplicationConfiguration>();
 
         services.AddAuthentication(x =>
         {
@@ -16,9 +16,9 @@ public class AuthenticationServiceModule : IServiceModule<IConfiguration>
         {
             x.TokenValidationParameters = new TokenValidationParameters()
             {
-                ValidIssuer = authenticationConfiguration.Issuer,
-                ValidAudience = authenticationConfiguration.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationConfiguration.IssuerSigningKey)),
+                ValidIssuer = authenticationConfiguration.SessionToken_Issuer,
+                ValidAudience = authenticationConfiguration.SessionToken_Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationConfiguration.SessionToken_IssuerSigningKey)),
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,

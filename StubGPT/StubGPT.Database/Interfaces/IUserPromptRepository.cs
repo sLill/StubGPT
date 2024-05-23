@@ -1,5 +1,5 @@
 ﻿namespace StubGPT.Database;
-public interface IUserPromptRepository
+public interface IUserPromptRepository : IRepositoryBase
 {
     #region Methods..
     Task<List<UserPrompt>?> GetUserPromptsAsync(Guid userId);

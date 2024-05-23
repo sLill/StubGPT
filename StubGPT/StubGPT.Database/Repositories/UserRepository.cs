@@ -17,6 +17,20 @@ public class UserRepository : RepositoryBase, IUserRepository
     #endregion Constructors..
 
     #region Methods..	
+    public async Task<User?> AddUserAsync(string username, string passwordHash)
+    {
+        User? newUser = null;   
+
+        var existingUser = await _mainDbContext.Users.FirstOrDefaultAsync(x => x.Username.ToLower() == username.ToLower());
+        if (existingUser == null) 
+        { 
+            newUser = new User() { Username = username, PasswordHash = passwordHash };
+            await _mainDbContext.Users.AddAsync(newUser);
+        }
+     
+        return newUser;
+    }
+
     public User? GetUserBySessionToken(string sessionToken)
         => _mainDbContext.Users.FirstOrDefault(x => x != null && x.SessionToken == sessionToken);
 

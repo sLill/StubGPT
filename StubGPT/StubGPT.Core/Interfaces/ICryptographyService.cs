@@ -2,7 +2,7 @@
 public interface ICryptographyService
 {
     #region Methods..
-    byte[] Encrypt(string value);
-    string Decrypt(byte[] encryptedBytes);
+    string Encrypt(string value);
+    string Decrypt(string encryptedValue);
     #endregion Methods..
 }

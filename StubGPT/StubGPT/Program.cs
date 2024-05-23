@@ -8,9 +8,11 @@ public class Program
 
         // Settings
         builder.Configuration.Sources.Clear();
+        builder.Configuration.AddEnvironmentVariables();
         builder.Configuration.AddJsonFile("appsettings.json");
+        builder.Configuration.AddUserSecrets<Program>();
         builder.Services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
-        builder.Services.Configure<AuthenticationConfiguration>(builder.Configuration.GetSection("AuthenticationConfiguration"));
+        builder.Services.Configure<ApplicationConfiguration>(builder.Configuration.GetSection("ApplicationConfiguration"));
         builder.Services.AddTransient<IConfigureOptions<UserConfiguration>, UserConfigurationOptionsProvider>();
 
         // Logging
@@ -20,7 +22,6 @@ public class Program
         });
 
         // Services
-        builder.Services.AddServiceModule<ConfigurationServiceModule, IConfiguration>(builder.Configuration);
         builder.Services.AddServiceModule<AuthenticationServiceModule, IConfiguration>(builder.Configuration);
         builder.Services.AddServiceModule<ServicesServiceModule>();
         builder.Services.AddServiceModule<HttpServiceModule>();
@@ -76,6 +77,23 @@ public class Program
             MessageEndpoints.Register(endpoints);
             UserEndpoints.Register(endpoints);
         });
+
+        CheckAndPerformDatabaseMigrations(app);
+    }
+
+    private static void CheckAndPerformDatabaseMigrations(WebApplication app)
+    {
+        var serviceScope = app.Services.CreateScope();
+
+        var logger = app.Services.GetService<ILogger<Program>>();
+        var mainDbContext = serviceScope.ServiceProvider.GetRequiredService<MainDbContext>();
+
+        var mainPendingMigrations = mainDbContext.Database.GetPendingMigrations();
+        if (mainPendingMigrations?.Any() ?? false)
+        {
+            logger!.LogInformation($"Performing database migrations for {mainDbContext.Database.GetDbConnection().Database}");
+            mainDbContext.Database.Migrate();
+        }
     }
 
     private static void ConfigureKestrelHost(WebHostBuilderContext hostContext, KestrelServerOptions options)

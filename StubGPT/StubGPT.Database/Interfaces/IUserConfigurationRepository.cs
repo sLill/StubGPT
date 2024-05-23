@@ -1,5 +1,5 @@
 ﻿namespace StubGPT.Database;
-public interface IUserConfigurationRepository
+public interface IUserConfigurationRepository : IRepositoryBase
 {
     #region Methods..
     UserConfiguration AddUserConfiguration(Guid userId);

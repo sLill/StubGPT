@@ -1,18 +1,15 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-
-namespace StubGPT.Core;
+﻿namespace StubGPT.Core;
 public class TokenService : ITokenService
 {
     #region Fields..
-    private IOptionsSnapshot<AuthenticationConfiguration> _authenticationConfiguration;
+    private IOptionsSnapshot<ApplicationConfiguration> _authenticationConfiguration;
     #endregion Fields..
 
     #region Properties..
     #endregion Properties..
 
     #region Constructors..
-    public TokenService(IOptionsSnapshot<AuthenticationConfiguration> authenticationConfiguration)
+    public TokenService(IOptionsSnapshot<ApplicationConfiguration> authenticationConfiguration)
     {
         _authenticationConfiguration = authenticationConfiguration;
     }
@@ -21,7 +18,7 @@ public class TokenService : ITokenService
     #region Methods..			
     public string GenerateToken(Guid userId, List<Claim> customClaims)
     {
-        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationConfiguration.Value.IssuerSigningKey));
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationConfiguration.Value.SessionToken_IssuerSigningKey));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
@@ -33,10 +30,10 @@ public class TokenService : ITokenService
 
         claims.AddRange(customClaims);
 
-        var jwtSecurityToken = new JwtSecurityToken(issuer: _authenticationConfiguration.Value.Issuer,
-                                                    audience: _authenticationConfiguration.Value.Audience,
+        var jwtSecurityToken = new JwtSecurityToken(issuer: _authenticationConfiguration.Value.SessionToken_Issuer,
+                                                    audience: _authenticationConfiguration.Value.SessionToken_Audience,
                                                     claims: claims,
-                                                    expires: DateTime.Now.AddMinutes(_authenticationConfiguration.Value.TokenLifetime.TotalMinutes),
+                                                    expires: DateTime.Now.AddMinutes(TimeSpan.FromDays(_authenticationConfiguration.Value.SessionToken_Lifetime_Days).TotalMinutes),
                                                     signingCredentials: signingCredentials);
 
         return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);

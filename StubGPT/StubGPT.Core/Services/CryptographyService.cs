@@ -2,27 +2,64 @@
 public class CryptographyService : ICryptographyService
 {
     #region Fields..
-    private const int SALT_BYTES = 8;
-    private const int KEY_SIZE = 16;
-    private const int ITERATIONS = 1000;
-    private const string IV = "HJD445D67727C703DFY8K32ABEA9C41D";
+    private readonly ILogger<CryptographyService> _logger;
+    private readonly IOptions<ApplicationConfiguration> _applicationConfiguration;
     #endregion Fields..
 
     #region Properties..
     #endregion Properties..
 
     #region Constructors..
+    public CryptographyService(ILogger<CryptographyService> logger, IOptions<ApplicationConfiguration> applicationConfiguration)
+    {
+        _logger = logger;
+        _applicationConfiguration = applicationConfiguration;
+    }
     #endregion Constructors..
 
     #region Methods..	
-    public byte[] Encrypt(string value)
+    public string Encrypt(string value)
     {
+        if (_applicationConfiguration.Value.Encryption_Key == null || _applicationConfiguration.Value.Encryption_IV == null)
+            throw new Exception("Null encryption key/iv");
 
+        using (Aes aes = Aes.Create())
+        {
+            aes.Key = Encoding.UTF8.GetBytes(_applicationConfiguration.Value.Encryption_Key);
+            aes.IV = Encoding.UTF8.GetBytes(_applicationConfiguration.Value.Encryption_IV);
+
+            ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+            using (MemoryStream memoryStream = new MemoryStream())
+            using (CryptoStream cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
+            using (StreamWriter streamWriter = new StreamWriter(cryptoStream))
+            {
+                streamWriter.Write(value);
+                byte[] encryptedBytes = memoryStream.ToArray();
+                return Convert.ToBase64String(encryptedBytes);
+            }
+        }
     }
 
-    public string Decrypt(byte[] encryptedBytes)
+    public string Decrypt(string encryptedValue)
     {
+        if (_applicationConfiguration.Value.Encryption_Key == null || _applicationConfiguration.Value.Encryption_IV == null)
+            throw new Exception("Null encryption key/iv");
 
+        byte[] encryptedBytes = Convert.FromBase64String(encryptedValue);
+
+        using (Aes aes = Aes.Create())
+        {
+            aes.Key = Encoding.UTF8.GetBytes(_applicationConfiguration.Value.Encryption_Key);
+            aes.IV = Encoding.UTF8.GetBytes(_applicationConfiguration.Value.Encryption_IV);
+
+            ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+            using (MemoryStream memoryStream = new MemoryStream(encryptedBytes))
+            using (CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
+            using (StreamReader streamReader = new StreamReader(cryptoStream))
+                return streamReader.ReadToEnd();
+        }
     }
     #endregion Methods..
 }
