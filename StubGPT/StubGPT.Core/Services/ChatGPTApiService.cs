@@ -5,18 +5,17 @@ public class ChatGPTApiService : IChatApiService
     private const string BASE_URL = @"https://api.openai.com";
     private const string VERSION = "v1";
 
-    public ChatGPTModel Model { get; set; } = ChatGPTModel.GPT4o;
-
-    private readonly IOptionsSnapshot<UserConfiguration> _userConfiguration;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     #endregion Fields..
 
     #region Properties..
+    public ChatGPTModel Model { get; set; } = ChatGPTModel.GPT4o;
     #endregion Properties..
 
     #region Constructors..
-    public ChatGPTApiService(IOptionsSnapshot<UserConfiguration> userConfiguration)
+    public ChatGPTApiService(IHttpContextAccessor httpContextAccessor)
     {
-        _userConfiguration = userConfiguration;
+        _httpContextAccessor = httpContextAccessor;
     }
     #endregion Constructors..
 
@@ -57,14 +56,18 @@ public class ChatGPTApiService : IChatApiService
 
         try
         {
-            string requestUri = $"{BASE_URL}/{VERSION}/{relativeEndpoint.Trim('\\', '/')}";
-            using (var httpClient = new HttpClient())
+            var user = _httpContextAccessor.HttpContext?.Items["User"] as User;
+            if (user != null)
             {
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_userConfiguration.Value.OpenAI_ApiKey}");
-                httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", _userConfiguration.Value.OpenAI_OrganizationId);
-                httpClient.DefaultRequestHeaders.Add("OpenAI-Project", _userConfiguration.Value.OpenAI_ProjectId);
+                string requestUri = $"{BASE_URL}/{VERSION}/{relativeEndpoint.Trim('\\', '/')}";
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {user.Configuration!.OpenAI_ApiKey}");
+                    httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", user.Configuration.OpenAI_OrganizationId);
+                    httpClient.DefaultRequestHeaders.Add("OpenAI-Project", user.Configuration.OpenAI_ProjectId);
 
-                response = await httpClient.GetAsync(requestUri);
+                    response = await httpClient.GetAsync(requestUri);
+                }
             }
         }
         catch (Exception ex)
@@ -81,17 +84,21 @@ public class ChatGPTApiService : IChatApiService
         
         try
         {
-            string requestUri =  $"{BASE_URL}/{VERSION}/{relativeEndpoint.Trim('\\', '/')}";
-            var requestBodyJson = JsonSerializer.Serialize(requestBody);
-            var httpContent = new StringContent(requestBodyJson, Encoding.UTF8, "application/json");
-
-            using (var httpClient = new HttpClient() )
+            var user = _httpContextAccessor.HttpContext?.Items["User"] as User;
+            if (user != null)
             {
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_userConfiguration.Value.OpenAI_ApiKey}");
-                httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", _userConfiguration.Value.OpenAI_OrganizationId);
-                httpClient.DefaultRequestHeaders.Add("OpenAI-Project", _userConfiguration.Value.OpenAI_ProjectId);
+                string requestUri = $"{BASE_URL}/{VERSION}/{relativeEndpoint.Trim('\\', '/')}";
+                var requestBodyJson = JsonSerializer.Serialize(requestBody);
+                var httpContent = new StringContent(requestBodyJson, Encoding.UTF8, "application/json");
 
-                response = await httpClient.PostAsync(requestUri, httpContent);
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {user.Configuration!.OpenAI_ApiKey}");
+                    httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", user.Configuration.OpenAI_OrganizationId);
+                    httpClient.DefaultRequestHeaders.Add("OpenAI-Project", user.Configuration.OpenAI_ProjectId);
+
+                    response = await httpClient.PostAsync(requestUri, httpContent);
+                }
             }
         }
         catch (Exception ex)

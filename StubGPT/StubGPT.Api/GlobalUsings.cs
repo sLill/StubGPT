@@ -5,3 +5,4 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Routing;
 global using StubGPT.Core;
 global using System.Net;
+global using Microsoft.Extensions.DependencyInjection;

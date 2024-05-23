@@ -13,7 +13,6 @@ public class Program
         builder.Configuration.AddUserSecrets<Program>();
         builder.Services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
         builder.Services.Configure<ApplicationConfiguration>(builder.Configuration.GetSection("ApplicationConfiguration"));
-        builder.Services.AddTransient<IConfigureOptions<UserConfiguration>, UserConfigurationOptionsProvider>();
 
         // Logging
         builder.Services.AddLogging(loggingBuilder =>
@@ -69,6 +68,7 @@ public class Program
         app.UseRouting();
 
         app.UseCors("AllowAnyOrigin");
+        app.UseMiddleware<UserMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
 

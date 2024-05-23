@@ -4,6 +4,7 @@ public class HttpServiceModule : IServiceModule
     #region Methods..
     public IServiceCollection AddServices(IServiceCollection services)
     {
+        services.AddHttpContextAccessor();
         services.AddAuthorization();
         services.AddHttpClient();
         services.AddRateLimiter(options => options.AddFixedWindowLimiter(policyName: "fixed", options =>
