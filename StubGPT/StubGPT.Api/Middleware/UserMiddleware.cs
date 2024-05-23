@@ -19,35 +19,43 @@ public class UserMiddleware
     public async Task InvokeAsync(HttpContext context, IServiceProvider serviceProvider)
     {
         var responseStatusCode = HttpStatusCode.Unauthorized;
+        var endpoint = context.GetEndpoint();
 
         var serviceScope = serviceProvider.CreateScope();
         IUserService? userService = serviceScope.ServiceProvider.GetService<IUserService>();
-
-        var authorizationHeaderTokens = context?.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ");
-        if (authorizationHeaderTokens?.Length > 1)
+        
+        var allowAnonymous = endpoint?.Metadata.GetMetadata<AllowAnonymousAttribute>();
+        if (allowAnonymous != null)
+            responseStatusCode = HttpStatusCode.OK;
+        else
         {
-            string? sessionToken = authorizationHeaderTokens.Last();
-            if (sessionToken != null)
+            var authorizationHeaderTokens = context?.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ");
+            if (authorizationHeaderTokens?.Length > 1)
             {
-                var user = userService.GetUserBySessionToken(sessionToken);
-                if (user != null)
+                string? sessionToken = authorizationHeaderTokens.Last();
+                if (sessionToken != null)
                 {
-                    var userConfiguration = userService.GetUserConfiguration(user.UserId);
+                    var user = userService.GetUserBySessionToken(sessionToken);
+                    if (user != null)
+                    {
+                        var userConfiguration = userService.GetUserConfiguration(user.UserId);
 
-                    if (userConfiguration == null)
-                        userConfiguration = userService.AddUserConfiguration(user.UserId);
+                        if (userConfiguration == null)
+                            userConfiguration = userService.AddUserConfiguration(user.UserId);
 
-                    user.Configuration = userConfiguration;
+                        user.Configuration = userConfiguration;
 
-                    context.Items["User"] = user;
-                    responseStatusCode = HttpStatusCode.OK;
-
-                    await _next(context);
+                        context.Items["User"] = user;
+                        responseStatusCode = HttpStatusCode.OK;
+                    }
                 }
             }
         }
 
         context.Response.StatusCode = (int)responseStatusCode;
+
+        if (responseStatusCode == HttpStatusCode.OK)
+            await _next(context);
     }
     #endregion Methods..
 }

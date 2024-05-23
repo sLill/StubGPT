@@ -1,11 +1,15 @@
 <script setup>
-    import { ref, computed } from 'vue';
+    import { ref, computed, onMounted } from 'vue';
     import useEndpointService from './composables/services/useEndpointService.js';
     import useDialogService from './composables/services/useDialogService.js';
+    import { useToast } from 'primevue/usetoast';
     import PromptShortcuts from './components/PromptShortcuts.vue';
+    import LoginForm from './components/LoginForm.vue';
+    import { getCookie, setCookie } from './composables/utils/webUtils.js';
 
     const endpointService = useEndpointService();
     const dialogService = useDialogService();
+    const toast = useToast();
 
     const conversation = ref([]);
     const systemMessage = ref('You are a helpful assistant');
@@ -28,6 +32,23 @@
                 selectedSystemPrompt: (systemPrompt) => systemMessage.value = systemPrompt ? systemPrompt : systemMessage.value
             }
         });
+    };
+
+    const showLoginDialog = () => {
+        dialogService.showDynamicDialog({ 
+            content: LoginForm, 
+            data: {},
+            callbacks: {
+                loginSuccess: (sessionToken) => setCookie('SessionToken', sessionToken),
+                loginFailed: () => toast.add({ severity: 'error', summary: null, detail: 'Login Failed', life: 3000 })
+            }
+        });
+    };
+
+    const checkAuthentication = () => {
+        const sessionToken = getCookie('SessionToken');
+        if (!sessionToken) 
+            showLoginDialog()
     };
 
     const messageInput_Enter = async (event) => {
@@ -72,6 +93,10 @@
             case 'assistant':
                 return 'conversation-assistant-message message';
         }
+    });
+
+    onMounted(() => {
+        checkAuthentication();
     });
 </script>
 

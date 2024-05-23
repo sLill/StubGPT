@@ -32,9 +32,10 @@ public class CryptographyService : ICryptographyService
 
             using (MemoryStream memoryStream = new MemoryStream())
             using (CryptoStream cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-            using (StreamWriter streamWriter = new StreamWriter(cryptoStream))
             {
-                streamWriter.Write(value);
+                cryptoStream.Write(Encoding.UTF8.GetBytes(value), 0, value.Length);
+                cryptoStream.FlushFinalBlock();
+
                 byte[] encryptedBytes = memoryStream.ToArray();
                 return Convert.ToBase64String(encryptedBytes);
             }

@@ -21,6 +21,8 @@ public class UserConfigurationRepository : RepositoryBase, IUserConfigurationRep
     {
         var userConfiguration = new UserConfiguration() { UserId = userId };
         _mainDbContext.UserConfiguration.Add(userConfiguration);
+        _mainDbContext.SaveChanges();
+
         return userConfiguration;
     }
 
