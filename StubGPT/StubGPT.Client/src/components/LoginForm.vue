@@ -28,7 +28,7 @@
             <InputText placeholder="Password" v-model="password" @keypress.enter="tryLogin"></InputText>
         </div>
         <div class="options flex-center">
-            <Button class="flex-center" style="padding: 10px; width: 100px;" label="Login" @click="tryLogin" @enter="tryLogin"/>
+            <Button class="flex-center" style="padding: 8px; width: 100px;" label="Login" @click="tryLogin" @enter="tryLogin"/>
         </div>
     </div>
 </template>
@@ -43,7 +43,7 @@
     "options";
 
     background: var(--surface-50);
-    padding: 25px;
+    padding: 20px;
     border-radius: 8px;
 }
 

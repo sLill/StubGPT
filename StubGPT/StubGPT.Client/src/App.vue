@@ -39,7 +39,10 @@
             content: LoginForm, 
             data: {},
             callbacks: {
-                loginSuccess: (sessionToken) => setCookie('SessionToken', sessionToken),
+                loginSuccess: (sessionToken) => {
+                    setCookie('SessionToken', sessionToken);
+                    toast.add({ severity: 'success', summary: null, detail: 'Login Success', life: 3000 })
+                },
                 loginFailed: () => toast.add({ severity: 'error', summary: null, detail: 'Login Failed', life: 3000 })
             }
         });
@@ -130,6 +133,7 @@
     </div>
 
     <DynamicDialog />
+    <Toast />
 </template>
 
 <style scoped>
