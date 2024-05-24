@@ -9,7 +9,9 @@ export default function useEndpointService() {
         try 
         {
             const client = axios.create({ baseURL: 'http://localhost:5110' });
-            response.value = await client.get(endpoint);
+            const sessionToken = getCookie('SessionToken');
+            const headers = sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {};
+            response.value = await client.get(endpoint, { headers: headers });
         } 
         catch (err) {
             console.log(err);

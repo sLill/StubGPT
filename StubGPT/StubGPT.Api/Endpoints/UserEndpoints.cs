@@ -9,9 +9,25 @@ public static class UserEndpoints
     #region Methods..
     public static void Register(IEndpointRouteBuilder endpoints)
     {
+        endpoints.IsAuthenticated();
         endpoints.AddUser();
         endpoints.Login();
     }
+
+    public static void IsAuthenticated(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapGet($"{_basePath}/isAuthenticated", () =>
+        {
+            var httpStatusCode = HttpStatusCode.OK;
+            object? responseData = null;
+
+            return Results.Json(responseData, statusCode: (int)httpStatusCode);
+        })
+       .RequireAuthorization()
+       .WithName(nameof(IsAuthenticated))
+       .WithTags(_tag);
+    }
+
 
     public static void AddUser(this IEndpointRouteBuilder endpoints)
     {

@@ -11,5 +11,6 @@ public interface IUserService
     Task<UserConfiguration?> GetUserConfigurationAsync(Guid userId);
     Task<List<UserPrompt>?> GetUserPromptsAsync(Guid userId);
     Task<string?> TryAuthenticateAsync(string username, string password);
+    Task<bool> UpdateUserConfigurationAsync(UserConfiguration userConfiguration);
     #endregion Methods..
 }

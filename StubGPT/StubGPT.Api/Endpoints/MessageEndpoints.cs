@@ -1,4 +1,6 @@
-﻿namespace StubGPT.Api;
+﻿using StubGPT.Database;
+
+namespace StubGPT.Api;
 public static class MessageEndpoints
 {
     #region Fields..
@@ -9,13 +11,33 @@ public static class MessageEndpoints
     #region Methods..
     public static void Register(IEndpointRouteBuilder endpoints)
     {
+        endpoints.GetLastSystemPrompt();
         endpoints.SendMessage();
+    }
+
+    public static void GetLastSystemPrompt(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapGet($"{_basePath}/getLastSystemPrompt", async (HttpContext context) =>
+        {
+            var httpStatusCode = HttpStatusCode.OK;
+            object? responseData = null;
+
+            var user = context.Items["User"] as User;
+            responseData = new GetLastSystemPromptResponse() { Prompt = user.Configuration!.LastSystemPrompt };
+
+            return Results.Json(responseData, statusCode: (int)httpStatusCode);
+        })
+        .RequireAuthorization()
+        .Produces<GetLastSystemPromptResponse>()
+        .WithName(nameof(GetLastSystemPrompt))
+        .WithTags(_tag);
     }
 
     public static void SendMessage(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost($"{_basePath}/sendMessage", async ([FromServices] IChatApiService chatApiService,
-                                                             [FromBody] SendMessageRequest data) =>
+        endpoints.MapPost($"{_basePath}/sendMessage", async (HttpContext context,
+                                                            [FromServices] IChatApiService chatApiService,
+                                                            [FromBody] SendMessageRequest data) =>
         {
             var httpStatusCode = HttpStatusCode.OK;
             object? responseData = null;

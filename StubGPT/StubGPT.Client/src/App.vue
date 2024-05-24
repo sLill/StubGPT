@@ -39,19 +39,33 @@
             content: LoginForm, 
             data: {},
             callbacks: {
-                loginSuccess: (sessionToken) => {
+                loginSuccess: async (sessionToken) => {
                     setCookie('SessionToken', sessionToken);
-                    toast.add({ severity: 'success', summary: null, detail: 'Login Success', life: 3000 })
+                    toast.add({ severity: 'success', summary: null, detail: 'Login Success', life: 3000 });
+                    await initialize();
                 },
                 loginFailed: () => toast.add({ severity: 'error', summary: null, detail: 'Login Failed', life: 3000 })
             }
         });
     };
 
-    const checkAuthentication = () => {
+    const isAuthenticated = async () => {
+        let isAuthenticated = false;
+
         const sessionToken = getCookie('SessionToken');
-        if (!sessionToken) 
-            showLoginDialog()
+        if (sessionToken) {
+            const response = await endpointService.getData('/api/v1/user/isAuthenticated');
+            if (response && response.status == 200)
+                isAuthenticated = true;
+        }
+
+        return isAuthenticated;
+    };
+
+    const initialize = async () => {
+        const getLastSystemPromptResponse = await endpointService.getData('/api/v1/message/getLastSystemPrompt');
+        if (getLastSystemPromptResponse && getLastSystemPromptResponse.status == 200)
+            systemMessage.value = getLastSystemPromptResponse.data.prompt;
     };
 
     const messageInput_Enter = async (event) => {
@@ -98,8 +112,11 @@
         }
     });
 
-    onMounted(() => {
-        checkAuthentication();
+    onMounted(async () => {
+        if (await isAuthenticated())
+            await initialize();
+        else
+            showLoginDialog();
     });
 </script>
 

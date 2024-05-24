@@ -76,5 +76,8 @@ public class UserService : IUserService
 
         return sessionToken;
     }
+
+    public async Task<bool> UpdateUserConfigurationAsync(UserConfiguration userConfiguration)
+        => await _userConfigurationRepository.UpdateAsync(userConfiguration);
     #endregion Methods..
 }

@@ -14,6 +14,8 @@ public class UserConfiguration : EntityBase
     [StringLength(255)]
     public string? OpenAI_ProjectId { get; set; }
 
+    public string? LastSystemPrompt { get; set; }
+
     [ForeignKey(nameof(User))]
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;

@@ -1,4 +1,6 @@
-﻿namespace StubGPT.Core;
+﻿using System.Text.Json;
+
+namespace StubGPT.Core;
 public class ChatGPTApiService : IChatApiService
 {
     #region Fields..
@@ -6,6 +8,7 @@ public class ChatGPTApiService : IChatApiService
     private const string VERSION = "v1";
 
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IUserService _userService;
     #endregion Fields..
 
     #region Properties..
@@ -13,9 +16,10 @@ public class ChatGPTApiService : IChatApiService
     #endregion Properties..
 
     #region Constructors..
-    public ChatGPTApiService(IHttpContextAccessor httpContextAccessor)
+    public ChatGPTApiService(IHttpContextAccessor httpContextAccessor, IUserService userService)
     {
         _httpContextAccessor = httpContextAccessor;
+        _userService = userService;
     }
     #endregion Constructors..
 
@@ -45,6 +49,11 @@ public class ChatGPTApiService : IChatApiService
                 if (chatGPTResponse!.choices?.Any() ?? false)
                     result = chatGPTResponse.choices[0].message!.content;
             }
+
+            var user = _httpContextAccessor.HttpContext.Items["User"] as User;
+            user.Configuration.LastSystemPrompt = JsonSerializer.Deserialize<Message>(conversation[0].ToString()).content;
+
+            await _userService.UpdateUserConfigurationAsync(user.Configuration);
         }
 
         return result;
