@@ -61,7 +61,7 @@ import Message from 'primevue/message';
 //import ProgressSpinner from 'primevue/progressspinner';
 import RadioButton from 'primevue/radiobutton';
 //import Row from 'primevue/row';
-//import ScrollPanel from 'primevue/scrollpanel';
+import ScrollPanel from 'primevue/scrollpanel';
 //import SelectButton from 'primevue/selectbutton';
 //import Sidebar from 'primevue/sidebar';
 import Slider from 'primevue/slider';
@@ -150,7 +150,7 @@ export default {
         //app.component('ProgressSpinner', ProgressSpinner);
         app.component('RadioButton', RadioButton);
         //app.component('Row', Row);
-        //app.component('ScrollPanel', ScrollPanel);
+        app.component('ScrollPanel', ScrollPanel);
         //app.component('SelectButton', SelectButton);
         //app.component('Sidebar', Sidebar);
         app.component('Slider', Slider);

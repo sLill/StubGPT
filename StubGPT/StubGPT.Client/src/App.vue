@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, computed, onMounted } from 'vue';
+    import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
     import useEndpointService from './composables/services/useEndpointService.js';
     import useDialogService from './composables/services/useDialogService.js';
     import { useToast } from 'primevue/usetoast';
@@ -10,6 +10,9 @@
     const endpointService = useEndpointService();
     const dialogService = useDialogService();
     const toast = useToast();
+
+    const conversationContainer = ref();
+    const scrollPanelHeight = ref('auto');
 
     const conversation = ref([]);
     const systemMessage = ref('You are a helpful assistant');
@@ -68,6 +71,11 @@
             systemMessage.value = getLastSystemPromptResponse.data.prompt;
     };
 
+    const updateLayout = () => {
+        const conversationContainerHeight = conversationContainer.value.clientHeight;
+        scrollPanelHeight.value = `${conversationContainerHeight}px`;
+    };
+
     const messageInput_Enter = async (event) => {
         if (!event.shiftKey) {
             event.preventDefault();
@@ -113,19 +121,31 @@
     });
 
     onMounted(async () => {
+        window.addEventListener('resize', updateLayout);
+
+        updateLayout();
+
         if (await isAuthenticated())
             await initialize();
         else
             showLoginDialog();
+    });
+
+    onUnmounted(() => {
+        window.removeEventListener('resize', updateLayout);
     });
 </script>
 
 <template>
     <div class="wrapper">
         <div class="chat-container">
-            <div class="conversation-container">
-                <p v-for="conversationMessage in conversation" :key="conversationMessage" :class="conversationMessageStyle(conversationMessage)" v-html="formattedMessage(conversationMessage.content)"></p>
-            </div>
+            <ScrollPanel ref="conversationContainer" class="conversation-container" :style="{ height: scrollPanelHeight }">
+                <div v-for="conversationMessage in conversation" 
+                        :key="conversationMessage" 
+                        :class="conversationMessageStyle(conversationMessage)" 
+                        v-html="formattedMessage(conversationMessage.content)">
+                </div>
+            </ScrollPanel>
 
             <div class="message-container">
                 <div class="fill">
@@ -142,7 +162,7 @@
                     </div>
                 </div>
 
-                <Button style="margin: 0 0 1px 5px; align-self: end; width: 50px; height: 50px;" @click="promptShortcutsButton_Click">
+                <Button class="saved-prompts-button flex-center" @click="promptShortcutsButton_Click">
                     <FontAwesomeIcon style="font-size: 1rem;" :icon="['fas', 'file-pen']" />
                 </Button>
             </div>
@@ -166,7 +186,7 @@
 
 .chat-container {
     display: grid;
-    grid-gap: 20px;
+    grid-gap: 30px;
     grid-template: 1fr auto / 1fr;
     grid-template-areas:
         "conversation"
@@ -191,6 +211,7 @@
 
     position: relative;
     left: 20%;
+    margin-top: 16px;
 }
 
 .conversation-system-message {
@@ -198,7 +219,7 @@
 }
 
 .conversation-assistant-message {
-
+    margin-top: 16px;
 }
 
 .message-container {
@@ -250,5 +271,18 @@
 
 .code-block {
     background-color: red;
+}
+
+:deep(.p-scrollpanel-content) {
+    overflow-x: hidden; 
+    overflow-y: auto; 
+    padding: 0 18px 0 0;
+}
+
+.saved-prompts-button {
+    align-self: end; 
+    width: 54px; 
+    height: 54px;
+    margin: 0 0 1px 5px; 
 }
 </style>
