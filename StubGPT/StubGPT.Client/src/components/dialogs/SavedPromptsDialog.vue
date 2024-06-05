@@ -1,21 +1,26 @@
 <script setup>
     import { ref, inject, onBeforeMount } from 'vue';
+    import SavedPromptItem from '/src/components/SavedPromptItem.vue';
 
     const dialogRef = inject('dialogRef');
 
-    const showSystemPrompts = ref(false);
+    const systemPromptsVisible = ref(false);
+
+    const prompts = ref([]);
+    // const systemPrompts = ref([]);
+
+    const loadPrompts = async() => {
+
+    };
 
     const confirm = () => { 
-        //if (dialogRef.value.options.callbacks.confirm)
-        //    dialogRef.value.options.callbacks.confirm();
+        if (dialogRef.value.options.callbacks.confirm)
+           dialogRef.value.options.callbacks.confirm();
         
         dialogRef.value.close();
     }
 
     const cancel = () => { 
-        //if (dialogRef.value.options.callbacks.cancel)
-        //    dialogRef.value.options.callbacks.cancel();
-
         dialogRef.value.close();
     }
 
@@ -27,16 +32,11 @@
 <template>
     <div class="container">
         <div class="content flex-center">
-            <div v-if="showSystemPrompts" class="system-prompts-container fill" style="border: 2px solid red;">
-
+            <div v-if="systemPromptsVisible" class="system-prompts-container fill" style="border: 2px solid red;">
             </div>
 
             <div v-else class="prompts-container fill">
-                <div class="prompt flex-center">
-                    <InputText></InputText>
-                    <InputText></InputText>
-                    <Button><FontAwesomeIcon :icon="['fas', 'arrow-turn-up']" /></Button>
-                </div>
+                <SavedPromptItem class="promptItem"></SavedPromptItem>
 
                 <Button style="position: relative; left: 50%; margin-top: 5px;">
                     <FontAwesomeIcon :icon="['fas', 'plus']" />
@@ -63,8 +63,8 @@
     height: 50vh;
 
     background: var(--surface-50);
-    padding: 20px;
     border-radius: 8px;
+    padding: 20px;
 }
 
 
@@ -85,13 +85,10 @@
     gap: 12px;
 }
 
-.prompts-container{
-    
+.prompts-container {
 }
 
-.prompt {
-    display: grid;
-    grid-template: 1fr / 120px 1fr 50px;
-    grid-gap: 4px;
+.promptItem {
+    height: 50px;
 }
 </style>

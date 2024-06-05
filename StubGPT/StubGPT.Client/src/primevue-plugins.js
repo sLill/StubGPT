@@ -56,7 +56,7 @@ import Message from 'primevue/message';
 //import Panel from 'primevue/panel';
 //import PanelMenu from 'primevue/panelmenu';
 //import PickList from 'primevue/picklist';
-//import Password from 'primevue/password';
+import Password from 'primevue/password';
 //import ProgressBar from 'primevue/progressbar';
 //import ProgressSpinner from 'primevue/progressspinner';
 import RadioButton from 'primevue/radiobutton';
@@ -145,7 +145,7 @@ export default {
         //app.component('Panel', Panel);
         //app.component('PanelMenu', PanelMenu);
         //app.component('PickList', PickList);
-        //app.component('Password', Password);
+        app.component('Password', Password);
         //app.component('ProgressBar', ProgressBar);
         //app.component('ProgressSpinner', ProgressSpinner);
         app.component('RadioButton', RadioButton);

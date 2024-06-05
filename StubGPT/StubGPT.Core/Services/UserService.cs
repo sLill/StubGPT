@@ -48,7 +48,7 @@ public class UserService : IUserService
     public async Task<UserConfiguration?> GetUserConfigurationAsync(Guid userId)
         => await _userConfigurationRepository.GetUserConfigurationAsync(userId);
 
-    public async Task<List<UserPrompt>?> GetUserPromptsAsync(Guid userId)
+    public async Task<List<UserPrompt>?> GetSavedPromptsAsync(Guid userId)
         => await _userPromptRepository.GetUserPromptsAsync(userId);
 
     public async Task<string?> TryAuthenticateAsync(string username, string password)

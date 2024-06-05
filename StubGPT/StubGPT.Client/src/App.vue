@@ -1,11 +1,14 @@
 <script setup>
-    import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+    import { ref, computed, onMounted, onUnmounted } from 'vue';
     import useEndpointService from './composables/services/useEndpointService.js';
     import useDialogService from './composables/services/useDialogService.js';
     import { useToast } from 'primevue/usetoast';
-    import PromptShortcuts from './components/PromptShortcuts.vue';
-    import LoginForm from './components/LoginForm.vue';
-    import { getCookie, setCookie } from './composables/utils/webUtils.js';
+    import SavedPromptsDialog from './components/dialogs/SavedPromptsDialog.vue';
+    import LoginDialog from './components/dialogs/LoginDialog.vue';
+    import { getCookie, setCookie, escapeHtml } from './composables/utils/webUtils.js';
+    import { marked } from 'marked';
+    import hljs from 'highlight.js';
+    import 'highlight.js/styles/github.css';
 
     const endpointService = useEndpointService();
     const dialogService = useDialogService();
@@ -21,6 +24,7 @@
     const message = ref('');
     const messageInputDisabled = ref(false);
 
+
     // Methods
     // const showSettingsDialog = () => {
 
@@ -28,7 +32,7 @@
 
     const showPromptShortcutsDialog = () => {
         dialogService.showDynamicDialog({ 
-            content: PromptShortcuts, 
+            content: SavedPromptsDialog, 
             data: {},
             callbacks: {
                 selectedPrompt: (prompt) => message.value = prompt ? prompt : message.value,
@@ -39,7 +43,7 @@
 
     const showLoginDialog = () => {
         dialogService.showDynamicDialog({ 
-            content: LoginForm, 
+            content: LoginDialog, 
             data: {},
             callbacks: {
                 loginSuccess: async (sessionToken) => {
@@ -102,11 +106,6 @@
         showPromptShortcutsDialog();
     };
 
-    const formattedMessage = computed(() => (inputText) => {
-        return inputText.replace(/```([\s\S]*?)```/g, function(match, code) {
-            return '<pre style="background: var(--surface-50); padding: 20px; border-radius: 5px;"><code>' + code.trim() + '</code></pre>';});
-    });
-
     const conversationMessageStyle = computed(() => (message) => {
         switch (message.role) {
             case 'system':
@@ -139,13 +138,15 @@
 <template>
     <div class="wrapper">
         <div class="chat-container">
-            <ScrollPanel ref="conversationContainer" class="conversation-container" :style="{ height: scrollPanelHeight }">
-                <div v-for="conversationMessage in conversation" 
-                        :key="conversationMessage" 
-                        :class="conversationMessageStyle(conversationMessage)" 
-                        v-html="formattedMessage(conversationMessage.content)">
-                </div>
-            </ScrollPanel>
+            <div ref="conversationContainer" class="conversation-container">
+                <ScrollPanel :style="{ padding: '0 40px', height: scrollPanelHeight }">
+                    <div v-for="conversationMessage in conversation" 
+                            :key="conversationMessage" 
+                            :class="conversationMessageStyle(conversationMessage)" 
+                            v-html="conversationMessage.role == 'assistant' ? marked(conversationMessage.content) : escapeHtml(conversationMessage.content)">
+                    </div>
+                </ScrollPanel>
+            </div>
 
             <div class="message-container">
                 <div class="fill">
@@ -174,6 +175,13 @@
 </template>
 
 <style scoped>
+:deep(code) {
+  background-color: var(--surface-50);
+  display: inline-block;
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+
 .wrapper {
     display: flex;
     align-items: center;
@@ -207,11 +215,12 @@
 
 .conversation-user-message {
     background: var(--surface-50);
-    width: 80%;
+    width: 70%;
 
     position: relative;
-    left: 20%;
+    left: 30%;
     margin-top: 16px;
+    padding: 0.5rem;
 }
 
 .conversation-system-message {
@@ -281,8 +290,8 @@
 
 .saved-prompts-button {
     align-self: end; 
-    width: 54px; 
-    height: 54px;
+    width: 52px; 
+    height: 52px;
     margin: 0 0 1px 5px; 
 }
 </style>

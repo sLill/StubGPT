@@ -16,6 +16,8 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "axios": "^1.7.1",
+    "highlight.js": "^11.9.0",
+    "marked": "^12.0.2",
     "primeicons": "^7.0.0",
     "primevue": "^3.52.0",
     "vue": "^3.4.21"

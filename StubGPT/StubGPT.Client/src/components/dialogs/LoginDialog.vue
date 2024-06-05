@@ -1,6 +1,6 @@
 <script setup>
     import { ref, inject } from 'vue';
-    import useEndpointService from '../composables/services/useEndpointService.js';
+    import useEndpointService from '/src/composables/services/useEndpointService.js';
 
     const endpointService = useEndpointService();
     const dialogRef = inject('dialogRef');
@@ -9,8 +9,6 @@
     const password = ref();
 
     const tryLogin = async () => { 
-        //if (dialogRef.value.options.callbacks.confirm)
-        //    dialogRef.value.options.callbacks.confirm();
         const response = await endpointService.postData(`/api/v1/user/login`, { "username": username.value, "password": password.value });
         if (response && response.status == 200 && response.data) {
             dialogRef.value.options.callbacks.loginSuccess(response.data.sessionToken);
@@ -24,8 +22,8 @@
 <template>
     <div class="container">
         <div class="content flex-center">
-            <InputText placeholder="Username" v-model="username"></InputText>
-            <InputText placeholder="Password" v-model="password" @keypress.enter="tryLogin"></InputText>
+            <InputText placeholder="Username" v-model="username" style="width: 100%;"></InputText>
+            <Password placeholder="Password" v-model="password" style="width: 100%;" :feedback="false" @keypress.enter="tryLogin" toggleMask></Password>
         </div>
         <div class="options flex-center">
             <Button class="flex-center" style="padding: 8px; width: 100px;" label="Login" @click="tryLogin" @enter="tryLogin"/>

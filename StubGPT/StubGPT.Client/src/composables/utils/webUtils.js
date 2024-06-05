@@ -25,3 +25,18 @@ export function setCookie(name, value, days = null, sameSite = 'Lax') {
     }
     document.cookie = name + '=' + (encodeURIComponent(value) || '') + expires + '; path=/; SameSite=' + sameSite;
 }
+
+export function escapeHtml(str) {
+    const entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
+    };
+
+    return str.replace(/[&<>"'`=/]/g, (char) => entityMap[char]);
+}

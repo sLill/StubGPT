@@ -9,9 +9,31 @@ public static class UserEndpoints
     #region Methods..
     public static void Register(IEndpointRouteBuilder endpoints)
     {
+        endpoints.GetSavedPrompts();
         endpoints.IsAuthenticated();
         endpoints.AddUser();
         endpoints.Login();
+    }
+
+    public static void GetSavedPrompts(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapGet($"{_basePath}/getSavedPrompts", async (HttpContext context,
+                                                               [FromServices] IUserService userService) =>
+        {
+            var httpStatusCode = HttpStatusCode.OK;
+            object? responseData = null;
+
+            var user = context.Items["User"] as User;
+            var savedPrompts = await userService.GetSavedPromptsAsync(user!.UserId) ?? new List<UserPrompt>();
+
+            responseData = new GetSavedPromptsResponse() { Prompts = savedPrompts };
+
+            return Results.Json(responseData, statusCode: (int)httpStatusCode);
+        })
+        .RequireAuthorization()
+        .Produces<GetSavedPromptsResponse>()
+        .WithName(nameof(GetSavedPrompts))
+        .WithTags(_tag);
     }
 
     public static void IsAuthenticated(this IEndpointRouteBuilder endpoints)
@@ -27,7 +49,6 @@ public static class UserEndpoints
        .WithName(nameof(IsAuthenticated))
        .WithTags(_tag);
     }
-
 
     public static void AddUser(this IEndpointRouteBuilder endpoints)
     {
