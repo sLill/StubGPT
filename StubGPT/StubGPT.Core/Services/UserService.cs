@@ -3,6 +3,7 @@ public class UserService : IUserService
 {
     #region Fields..
     private readonly ILogger<UserService> _logger;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ITokenService _tokenService;
     private readonly ICryptographyService _cryptographyService;
     private readonly IUserRepository _userRepository;
@@ -14,10 +15,11 @@ public class UserService : IUserService
     #endregion Properties..
 
     #region Constructors..
-    public UserService(ILogger<UserService> logger, ITokenService tokenService, ICryptographyService cryptographyService, IUserRepository userRepository, 
+    public UserService(ILogger<UserService> logger, IHttpContextAccessor httpContextAccessor, ITokenService tokenService, ICryptographyService cryptographyService, IUserRepository userRepository, 
         IUserConfigurationRepository userConfigurationRepository, IUserPromptRepository userPromptRepository)
     {
         _logger = logger;
+        _httpContextAccessor = httpContextAccessor;
         _tokenService = tokenService;
         _cryptographyService = cryptographyService;
         _userRepository = userRepository;
@@ -74,9 +76,13 @@ public class UserService : IUserService
             }
         }
 
+        if (sessionToken != null) 
+            _logger.LogInformation($"Login Success ({_httpContextAccessor.HttpContext.Connection.RemoteIpAddress}) - Username: {username}");
+        else
+            _logger.LogError($"Login Failed ({_httpContextAccessor.HttpContext.Connection.RemoteIpAddress}) - Username: {username}");
+
         return sessionToken;
     }
-
     public async Task<bool> UpdateUserConfigurationAsync(UserConfiguration userConfiguration)
         => await _userConfigurationRepository.UpdateAsync(userConfiguration);
     #endregion Methods..

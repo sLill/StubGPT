@@ -17,7 +17,7 @@ public class Program
         // Logging
         builder.Services.AddLogging(loggingBuilder =>
         {
-            loggingBuilder.AddProvider(new SqlLoggerProvider((category, level) => level >= LogLevel.Error, GetMainConnectionString(builder)));
+            loggingBuilder.AddProvider(new SqlLoggerProvider((category, level) => level >= LogLevel.Information, GetMainConnectionString(builder)));
         });
 
         // Services

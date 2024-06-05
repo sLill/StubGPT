@@ -81,7 +81,6 @@ public static class UserEndpoints
             object? responseData = null;
 
             string? sessionToken = await userService.TryAuthenticateAsync(data.Username, data.Password);
-
             if (sessionToken == null)
                 httpStatusCode = HttpStatusCode.BadRequest;
             else
