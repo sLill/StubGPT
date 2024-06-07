@@ -4,6 +4,7 @@ public class MainDbContext : DbContextBase
     #region Properties..
     public DbSet<ApplicationLog> ApplicationLogs { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<UserSession> UserSessions { get; set; }
     public DbSet<UserConfiguration> UserConfiguration { get; set; }
     public DbSet<UserPrompt> UserPrompts { get; set; }
     #endregion Properties..

@@ -56,6 +56,9 @@ public abstract class RepositoryBase : IRepositoryBase
         return success;
     }
 
+    public virtual async Task<int> SaveChangesAsync()
+        => await _dbContext.SaveChangesAsync();
+
     public virtual async Task<bool> UpdateAsync(object entity)
     {
         bool success = true;

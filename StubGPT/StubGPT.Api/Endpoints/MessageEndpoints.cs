@@ -22,8 +22,8 @@ public static class MessageEndpoints
             var httpStatusCode = HttpStatusCode.OK;
             object? responseData = null;
 
-            var user = context.Items["User"] as User;
-            responseData = new GetLastSystemPromptResponse() { Prompt = user.Configuration!.LastSystemPrompt };
+            var userSession = context.Items["UserSession"] as UserSession;
+            responseData = new GetLastSystemPromptResponse() { Prompt = userSession!.User.Configuration!.LastSystemPrompt };
 
             return Results.Json(responseData, statusCode: (int)httpStatusCode);
         })

@@ -23,8 +23,8 @@ public static class UserEndpoints
             var httpStatusCode = HttpStatusCode.OK;
             object? responseData = null;
 
-            var user = context.Items["User"] as User;
-            var savedPrompts = await userService.GetSavedPromptsAsync(user!.UserId) ?? new List<UserPrompt>();
+            var userSession = context.Items["UserSession"] as UserSession;
+            var savedPrompts = await userService.GetSavedPromptsAsync(userSession!.UserId) ?? new List<UserPrompt>();
 
             responseData = new GetSavedPromptsResponse() { Prompts = savedPrompts };
 

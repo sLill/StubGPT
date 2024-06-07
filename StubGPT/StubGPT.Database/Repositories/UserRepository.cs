@@ -10,7 +10,7 @@ public class UserRepository : RepositoryBase, IUserRepository
 
     #region Constructors..
     public UserRepository(ILogger<UserRepository> logger, MainDbContext mainDbContext)
-    : base(logger, mainDbContext)
+        : base(logger, mainDbContext)
     {
         _mainDbContext = mainDbContext;
     }
@@ -26,13 +26,11 @@ public class UserRepository : RepositoryBase, IUserRepository
         { 
             newUser = new User() { Username = username, PasswordHash = passwordHash };
             await _mainDbContext.Users.AddAsync(newUser);
+            await _mainDbContext.SaveChangesAsync();    
         }
      
         return newUser;
     }
-
-    public User? GetUserBySessionToken(string sessionToken)
-        => _mainDbContext.Users.FirstOrDefault(x => x != null && x.SessionToken == sessionToken);
 
     public async Task<User?> GetUserByUsernameAsync(string username)
         => await _mainDbContext.Users.FirstOrDefaultAsync(x => x.Username == username);

@@ -4,6 +4,8 @@ public class Program
     #region Methods..
     public static void Main(string[] args)
     {
+        LogLevel loggingLevel = LogLevel.Error;
+
         var builder = WebApplication.CreateBuilder(args);
 
         // Settings
@@ -17,7 +19,7 @@ public class Program
         // Logging
         builder.Services.AddLogging(loggingBuilder =>
         {
-            loggingBuilder.AddProvider(new SqlLoggerProvider((category, level) => level >= LogLevel.Information, GetMainConnectionString(builder)));
+            loggingBuilder.AddProvider(new SqlLoggerProvider((category, level) => level >= loggingLevel, GetMainConnectionString(builder)));
         });
 
         // Services
@@ -42,6 +44,7 @@ public class Program
         var app = builder.Build();
 
         ConfigureApplication(app);
+        loggingLevel = LogLevel.Information;
 
         app.Run();
     }

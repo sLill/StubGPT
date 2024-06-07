@@ -7,6 +7,7 @@ public class UserService : IUserService
     private readonly ITokenService _tokenService;
     private readonly ICryptographyService _cryptographyService;
     private readonly IUserRepository _userRepository;
+    private readonly IUserSessionRepository _userSessionRepository;
     private readonly IUserConfigurationRepository _userConfigurationRepository;
     private readonly IUserPromptRepository _userPromptRepository;
     #endregion Fields..
@@ -16,13 +17,14 @@ public class UserService : IUserService
 
     #region Constructors..
     public UserService(ILogger<UserService> logger, IHttpContextAccessor httpContextAccessor, ITokenService tokenService, ICryptographyService cryptographyService, IUserRepository userRepository, 
-        IUserConfigurationRepository userConfigurationRepository, IUserPromptRepository userPromptRepository)
+        IUserSessionRepository userSessionRepository, IUserConfigurationRepository userConfigurationRepository, IUserPromptRepository userPromptRepository)
     {
         _logger = logger;
         _httpContextAccessor = httpContextAccessor;
         _tokenService = tokenService;
         _cryptographyService = cryptographyService;
         _userRepository = userRepository;
+        _userSessionRepository = userSessionRepository;
         _userConfigurationRepository = userConfigurationRepository;
         _userPromptRepository = userPromptRepository;
     }
@@ -38,8 +40,8 @@ public class UserService : IUserService
     public UserConfiguration AddUserConfiguration(Guid userId)
         => _userConfigurationRepository.AddUserConfiguration(userId);
 
-    public User? GetUserBySessionToken(string sessionToken)
-        => _userRepository.GetUserBySessionToken(sessionToken);
+    public UserSession? GetUserSession(string sessionToken)
+        => _userSessionRepository.GetUserSession(sessionToken);
 
     public async Task<User?> GetUserByUsernameAsync(string username)
         => await _userRepository.GetUserByUsernameAsync(username);
@@ -71,8 +73,8 @@ public class UserService : IUserService
 
                 // JWT: Build token
                 sessionToken = _tokenService.GenerateToken(user.UserId, claims);
-                user.SessionToken = sessionToken;
-                await _userRepository.UpdateAsync(user);
+
+                await _userSessionRepository.AddUserSessionAsync(user, sessionToken);
             }
         }
 

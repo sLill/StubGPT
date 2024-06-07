@@ -35,17 +35,17 @@ public class UserMiddleware
                 string? sessionToken = authorizationHeaderTokens.Last();
                 if (sessionToken != null)
                 {
-                    var user = userService.GetUserBySessionToken(sessionToken);
-                    if (user != null)
+                    var userSession = userService.GetUserSession(sessionToken);
+                    if (userSession != null)
                     {
-                        var userConfiguration = userService.GetUserConfiguration(user.UserId);
+                        var userConfiguration = userService.GetUserConfiguration(userSession.UserId);
 
                         if (userConfiguration == null)
-                            userConfiguration = userService.AddUserConfiguration(user.UserId);
+                            userConfiguration = userService.AddUserConfiguration(userSession.UserId);
 
-                        user.Configuration = userConfiguration;
+                        userSession.User.Configuration = userConfiguration;
 
-                        context.Items["User"] = user;
+                        context.Items["UserSession"] = userSession;
                         responseStatusCode = HttpStatusCode.OK;
                     }
                 }
