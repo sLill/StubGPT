@@ -3,14 +3,14 @@ public class CryptographyService : ICryptographyService
 {
     #region Fields..
     private readonly ILogger<CryptographyService> _logger;
-    private readonly IOptions<ApplicationConfiguration> _applicationConfiguration;
+    private readonly IOptionsSnapshot<ApplicationConfiguration> _applicationConfiguration;
     #endregion Fields..
 
     #region Properties..
     #endregion Properties..
 
     #region Constructors..
-    public CryptographyService(ILogger<CryptographyService> logger, IOptions<ApplicationConfiguration> applicationConfiguration)
+    public CryptographyService(ILogger<CryptographyService> logger, IOptionsSnapshot<ApplicationConfiguration> applicationConfiguration)
     {
         _logger = logger;
         _applicationConfiguration = applicationConfiguration;

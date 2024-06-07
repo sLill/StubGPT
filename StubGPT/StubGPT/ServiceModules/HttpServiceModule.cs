@@ -9,7 +9,7 @@ public class HttpServiceModule : IServiceModule
         services.AddHttpClient();
         services.AddRateLimiter(options => options.AddFixedWindowLimiter(policyName: "fixed", options =>
         {
-            options.PermitLimit = 10;
+            options.PermitLimit = 20;
             options.Window = TimeSpan.FromSeconds(10);
             options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
             options.QueueLimit = 2;

@@ -4,8 +4,6 @@ public class AuthenticationServiceModule : IServiceModule<IConfiguration>
     #region Methods..
     public IServiceCollection AddServices(IServiceCollection services, IConfiguration configuration)
     {
-        var authenticationConfiguration = configuration.GetSection("ApplicationConfiguration").Get<ApplicationConfiguration>();
-
         services.AddAuthentication(x =>
         {
             x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -16,9 +14,9 @@ public class AuthenticationServiceModule : IServiceModule<IConfiguration>
         {
             x.TokenValidationParameters = new TokenValidationParameters()
             {
-                ValidIssuer = authenticationConfiguration.SessionToken_Issuer,
-                ValidAudience = authenticationConfiguration.SessionToken_Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationConfiguration.SessionToken_IssuerSigningKey)),
+                ValidIssuer = configuration["SessionToken_Issuer"],
+                ValidAudience = configuration["SessionToken_Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["SessionToken_IssuerSigningKey"])),
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,

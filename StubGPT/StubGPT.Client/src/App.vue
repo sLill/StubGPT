@@ -47,7 +47,7 @@
             data: {},
             callbacks: {
                 loginSuccess: async (sessionToken) => {
-                    setCookie('SessionToken', sessionToken);
+                    setCookie('SessionToken', sessionToken, 30);
                     toast.add({ severity: 'success', summary: null, detail: 'Login Success', life: 3000 });
                     await initialize();
                 },

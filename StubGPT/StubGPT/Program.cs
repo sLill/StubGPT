@@ -8,11 +8,11 @@ public class Program
 
         // Settings
         builder.Configuration.Sources.Clear();
-        builder.Configuration.AddEnvironmentVariables();
         builder.Configuration.AddJsonFile("appsettings.json");
+        builder.Configuration.AddEnvironmentVariables();
         builder.Configuration.AddUserSecrets<Program>();
         builder.Services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
-        builder.Services.Configure<ApplicationConfiguration>(builder.Configuration.GetSection("ApplicationConfiguration"));
+        builder.Services.Configure<ApplicationConfiguration>(builder.Configuration);
 
         // Logging
         builder.Services.AddLogging(loggingBuilder =>
@@ -48,6 +48,7 @@ public class Program
 
     private static void ConfigureApplication(WebApplication app)
     {
+        app.UseRateLimiter();
         app.UseExceptionHandler("/error");
 
         if (app.Environment.IsDevelopment())
@@ -62,7 +63,7 @@ public class Program
         }
 
         app.UseForwardedHeaders();
-        //app.UseHttpsRedirection();
+        app.UseHttpsRedirection();
         app.UseDefaultFiles();
         app.UseStaticFiles();
         app.UseRouting();
@@ -99,7 +100,7 @@ public class Program
     private static void ConfigureKestrelHost(WebHostBuilderContext hostContext, KestrelServerOptions options)
     {
         options.ListenAnyIP(5110);
-        //options.ListenAnyIP(5111, options => options.UseHttps());
+        options.ListenAnyIP(5111, options => options.UseHttps());
     }
 
     private static string GetMainConnectionString(WebApplicationBuilder builder)
@@ -109,7 +110,7 @@ public class Program
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             connectionString = builder.Configuration.GetConnectionString("ConnectionString_Main")!;
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            connectionString = builder.Configuration["ConnectionString_Main"]!;
+            connectionString = builder.Configuration["ConnectionString_SGPT_Main"]!;
 
         return connectionString;
     }
