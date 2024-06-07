@@ -62,7 +62,7 @@ import Password from 'primevue/password';
 import RadioButton from 'primevue/radiobutton';
 //import Row from 'primevue/row';
 import ScrollPanel from 'primevue/scrollpanel';
-//import SelectButton from 'primevue/selectbutton';
+import SelectButton from 'primevue/selectbutton';
 //import Sidebar from 'primevue/sidebar';
 import Slider from 'primevue/slider';
 //import SpeedDial from 'primevue/speeddial';
@@ -151,7 +151,7 @@ export default {
         app.component('RadioButton', RadioButton);
         //app.component('Row', Row);
         app.component('ScrollPanel', ScrollPanel);
-        //app.component('SelectButton', SelectButton);
+        app.component('SelectButton', SelectButton);
         //app.component('Sidebar', Sidebar);
         app.component('Slider', Slider);
         //app.component('SpeedDial', SpeedDial);
