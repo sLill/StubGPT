@@ -56,6 +56,24 @@ public abstract class RepositoryBase : IRepositoryBase
         return success;
     }
 
+    public virtual async Task<bool> RemoveAsync(object entity)
+    {
+        bool success = true;
+
+        try
+        {
+            _dbContext.Remove(entity);
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"{ex.Message} - {ex.StackTrace}");
+            success = false;
+        }
+
+        return success;
+    }
+
     public virtual async Task<int> SaveChangesAsync()
         => await _dbContext.SaveChangesAsync();
 

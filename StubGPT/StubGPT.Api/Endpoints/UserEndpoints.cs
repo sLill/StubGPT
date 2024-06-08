@@ -9,10 +9,95 @@ public static class UserEndpoints
     #region Methods..
     public static void Register(IEndpointRouteBuilder endpoints)
     {
+        endpoints.AddSavedPrompt();
+        endpoints.UpdateSavedPrompt();
+        endpoints.RemoveSavedPrompt();
         endpoints.GetSavedPrompts();
         endpoints.IsAuthenticated();
         endpoints.AddUser();
         endpoints.Login();
+    }
+
+    public static void AddSavedPrompt(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost($"{_basePath}/addSavedPrompt", async (HttpContext context, 
+                                                                [FromServices] IUserService userService,
+                                                                [FromBody] AddSavedPromptRequest data) =>
+        {
+            var httpStatusCode = HttpStatusCode.OK;
+
+            try
+            {
+                var userSession = context.Items["UserSession"] as UserSession;
+
+                PromptType promptType = Enum.Parse<PromptType>(data.PromptType);
+                bool result = await userService.AddUserPromptAsync(userSession!.UserId, promptType, string.Empty, string.Empty);
+                httpStatusCode = result ? HttpStatusCode.OK : HttpStatusCode.InternalServerError;
+            }
+            catch 
+            {
+                httpStatusCode = HttpStatusCode.BadRequest;
+            }
+
+            return Results.Json(null, statusCode: (int)httpStatusCode);
+        })
+       .RequireAuthorization()
+       .WithName(nameof(AddSavedPrompt))
+       .WithTags(_tag);
+    }
+
+    public static void UpdateSavedPrompt(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost($"{_basePath}/updateSavedPrompt", async (HttpContext context,
+                                                                   [FromServices] IUserService userService,
+                                                                   [FromBody] UpdateSavedPromptRequest data) =>
+        {
+            var httpStatusCode = HttpStatusCode.OK;
+
+            try
+            {
+                var userSession = context.Items["UserSession"] as UserSession;
+
+                bool result = await userService.UpdateUserPromptAsync(data.Prompt);
+                httpStatusCode = result ? HttpStatusCode.OK : HttpStatusCode.InternalServerError;
+            }
+            catch
+            {
+                httpStatusCode = HttpStatusCode.BadRequest;
+            }
+
+            return Results.Json(null, statusCode: (int)httpStatusCode);
+        })
+       .RequireAuthorization()
+       .WithName(nameof(UpdateSavedPrompt))
+       .WithTags(_tag);
+    }
+
+    public static void RemoveSavedPrompt(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost($"{_basePath}/removeSavedPrompt", async (HttpContext context,
+                                                                   [FromServices] IUserService userService,
+                                                                   [FromBody] DeleteSavedPromptRequest data) =>
+        {
+            var httpStatusCode = HttpStatusCode.OK;
+
+            try
+            {
+                var userSession = context.Items["UserSession"] as UserSession;
+
+                bool result = await userService.RemoveUserPromptAsync(data.Prompt);
+                httpStatusCode = result ? HttpStatusCode.OK : HttpStatusCode.InternalServerError;
+            }
+            catch
+            {
+                httpStatusCode = HttpStatusCode.BadRequest;
+            }
+
+            return Results.Json(null, statusCode: (int)httpStatusCode);
+        })
+       .RequireAuthorization()
+       .WithName(nameof(RemoveSavedPrompt))
+       .WithTags(_tag);
     }
 
     public static void GetSavedPrompts(this IEndpointRouteBuilder endpoints)

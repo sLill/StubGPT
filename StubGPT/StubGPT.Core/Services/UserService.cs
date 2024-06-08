@@ -40,6 +40,9 @@ public class UserService : IUserService
     public UserConfiguration AddUserConfiguration(Guid userId)
         => _userConfigurationRepository.AddUserConfiguration(userId);
 
+    public async Task<bool> AddUserPromptAsync(Guid userId, PromptType promptType, string shortcut, string text)
+        => await _userPromptRepository.AddAsync(new UserPrompt() { UserId = userId, PromptType = promptType, Shortcut = shortcut, Text = text });
+
     public UserSession? GetUserSession(string sessionToken)
         => _userSessionRepository.GetUserSession(sessionToken);
 
@@ -54,6 +57,9 @@ public class UserService : IUserService
 
     public async Task<List<UserPrompt>?> GetSavedPromptsAsync(Guid userId)
         => await _userPromptRepository.GetUserPromptsAsync(userId);
+
+    public async Task<bool> RemoveUserPromptAsync(UserPrompt prompt)
+        => await _userPromptRepository.RemoveAsync(prompt);
 
     public async Task<string?> TryAuthenticateAsync(string username, string password)
     {
@@ -85,7 +91,11 @@ public class UserService : IUserService
 
         return sessionToken;
     }
+
     public async Task<bool> UpdateUserConfigurationAsync(UserConfiguration userConfiguration)
         => await _userConfigurationRepository.UpdateAsync(userConfiguration);
+
+    public async Task<bool> UpdateUserPromptAsync(UserPrompt userPrompt)
+        => await _userPromptRepository.UpdateAsync(userPrompt); 
     #endregion Methods..
 }

@@ -8,8 +8,8 @@ export default function useEndpointService() {
 
         try 
         {
-            //const client = axios.create({ baseURL: 'https://stubgpt.com:5111' });
-            const client = axios.create({ baseURL: 'https://localhost:5111' });
+            const client = axios.create({ baseURL: 'https://stubgpt.com:5111' });
+            //const client = axios.create({ baseURL: 'https://localhost:5111' });
             const sessionToken = getCookie('SessionToken');
             const headers = sessionToken ? { 'Authorization': `Bearer ${sessionToken}`, 'Access-Control-Allow-Origin': '*' } : { 'Access-Control-Allow-Origin': '*' };
             response.value = await client.get(endpoint, { headers: headers });
@@ -26,8 +26,8 @@ export default function useEndpointService() {
 
         try 
         {
-            //const client = axios.create({ baseURL: 'https://stubgpt.com:5111', headers: { 'Content-Type': 'application/json' } });
-            const client = axios.create({ baseURL: 'https://localhost:5111', headers: { 'Content-Type': 'application/json' } });
+            const client = axios.create({ baseURL: 'https://stubgpt.com:5111', headers: { 'Content-Type': 'application/json' } });
+            //const client = axios.create({ baseURL: 'https://localhost:5111', headers: { 'Content-Type': 'application/json' } });
             const sessionToken = getCookie('SessionToken');
             const headers = sessionToken ? { 'Authorization': `Bearer ${sessionToken}`, 'Access-Control-Allow-Origin': '*' } : { 'Access-Control-Allow-Origin': '*' };
             response.value = await client.post(endpoint, data, { headers: headers });
@@ -39,7 +39,7 @@ export default function useEndpointService() {
         return response.value;
     }
 
-    return { getData, postData };
+    return { getData, postData, error };
 }
 
 

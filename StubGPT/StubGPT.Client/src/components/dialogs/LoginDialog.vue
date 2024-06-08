@@ -69,7 +69,7 @@
 
 .prompt {
     display: grid;
-    grid-template: 1fr / 120px 1fr 50px;
+    grid-template: 1fr / 100px 1fr 50px;
     grid-gap: 4px;
 }
 </style>

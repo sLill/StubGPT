@@ -7,7 +7,6 @@
     import LoginDialog from './components/dialogs/LoginDialog.vue';
     import { getCookie, setCookie, escapeHtml } from './composables/utils/webUtils.js';
     import { marked } from 'marked';
-    import hljs from 'highlight.js';
     import 'highlight.js/styles/github.css';
 
     const endpointService = useEndpointService();
@@ -35,8 +34,12 @@
             content: SavedPromptsDialog, 
             data: {},
             callbacks: {
-                selectedPrompt: (prompt) => message.value = prompt ? prompt : message.value,
-                selectedSystemPrompt: (systemPrompt) => systemMessage.value = systemPrompt ? systemPrompt : systemMessage.value
+                promptSelected: (prompt) => {
+                    if (prompt.promptType == 0)
+                        message.value = prompt ? prompt.text : message.value 
+                    else
+                        message.value = prompt ? prompt.text : message.value 
+                }
             }
         });
     };

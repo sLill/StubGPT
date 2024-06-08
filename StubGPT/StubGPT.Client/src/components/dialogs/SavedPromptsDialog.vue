@@ -1,36 +1,50 @@
 <script setup>
     import { ref, inject, onBeforeMount } from 'vue';
+    import useEndpointService from '/src/composables/services/useEndpointService.js';
     import SavedPromptItem from '/src/components/SavedPromptItem.vue';
 
+    const endpointService = useEndpointService();
+
     const dialogRef = inject('dialogRef');
-    const systemPromptsVisible = ref(false);
 
     const promptNavOptions = ref([
-        { icon: 'laptop', value: 'System' },
         { icon: 'user', value: 'User' },
+        { icon: 'laptop', value: 'System' }
     ]);
-    const promptNav = ref(promptNavOptions.value[1]);
 
-    const prompts = ref([]);
-    // const systemPrompts = ref([]);
+    const promptNav = ref(promptNavOptions.value[0]);
+    const savedPrompts = ref([]);
+    const selectedPrompt = ref();
 
+    // Methods
     const loadPrompts = async() => {
-
+        const savedPromptsResponse = await endpointService.getData('/api/v1/user/getSavedPrompts');
+        savedPrompts.value = savedPromptsResponse.data.prompts;
     };
-
-    const confirm = () => { 
-        if (dialogRef.value.options.callbacks.confirm)
-           dialogRef.value.options.callbacks.confirm();
-        
-        dialogRef.value.close();
-    }
 
     const cancel = () => { 
         dialogRef.value.close();
-    }
+    };
 
-    onBeforeMount(() => {
-        
+    const savedPrompt_Selected = (prompt) => {
+        dialogRef.value.options.callbacks.promptSelected(prompt);
+        dialogRef.value.close();
+    };
+
+    const addPrompt_Clicked = async (promptType) => {
+        await endpointService.postData('/api/v1/user/addSavedPrompt', { PromptType: promptType });
+        await loadPrompts();
+    };
+
+    const deletePrompt_Clicked = async() => {
+        if (selectedPrompt.value) {
+            await endpointService.postData('/api/v1/user/removeSavedPrompt', { prompt: selectedPrompt.value });
+            await loadPrompts();
+        }
+    };
+
+    onBeforeMount(async () => {
+        await loadPrompts();      
     });
 </script>
 
@@ -53,20 +67,48 @@
         </div>
 
         <div class="content-container flex-center">
-            <div class="content">
-                <div v-if="systemPromptsVisible" class="system-prompts-container fill" style="border: 2px solid red;">
+            <div class="content fill">
+                <div v-if="promptNav == promptNavOptions[0]" class="prompts-container fill">
+                    <SavedPromptItem v-for="prompt in savedPrompts.filter(x => x.promptType == 0)" 
+                        :key="prompt" 
+                        :model="prompt" 
+                        class="promptItem"
+                        @focus="selectedPrompt = prompt"
+                        @blur.capture="selectedPrompt = null"
+                        @insertButton-pressed="savedPrompt_Selected">
+                    </SavedPromptItem>
+
+                    <div style="display: flex; justify-content: center; gap: 8px;">
+                        <Button class="add-prompt" @click="addPrompt_Clicked('User')">
+                            <FontAwesomeIcon :icon="['fas', 'plus']" />
+                        </Button>
+                        <Button v-if="selectedPrompt != null" class="delete-prompt" @click="deletePrompt_Clicked">
+                            <FontAwesomeIcon :icon="['fas', 'trash']" />
+                        </Button>
+                    </div>
                 </div>
 
                 <div v-else class="prompts-container fill">
-                    <SavedPromptItem class="promptItem"></SavedPromptItem>
+                    <SavedPromptItem v-for="prompt in savedPrompts.filter(x => x.promptType == 1)" 
+                        :key="prompt" 
+                        :model="prompt" 
+                        class="promptItem"
+                        @focus="selectedPrompt = prompt"
+                        @blur.capture="selectedPrompt = null"
+                        @insertButton-pressed="savedPrompt_Selected">
+                    </SavedPromptItem>
 
-                    <Button style="position: relative; left: 50%; margin-top: 5px;">
-                        <FontAwesomeIcon :icon="['fas', 'plus']" />
-                    </Button>
+                    <div style="display: flex; justify-content: center; gap: 8px;">
+                        <Button class="add-prompt" @click="addPrompt_Clicked('System')">
+                            <FontAwesomeIcon :icon="['fas', 'plus']" />
+                        </Button>
+                        <Button v-if="selectedPrompt != null" class="delete-prompt" @click="deletePrompt_Clicked">
+                            <FontAwesomeIcon :icon="['fas', 'trash']" />
+                        </Button>
+                    </div>
                 </div>
             </div>
             <div class="options flex-center">
-                <Button class="flex-center" style="padding: 12px;" label="Save" @click="confirm"/>
                 <Button class="flex-center" style="padding: 12px;" label="Cancel" @click="cancel"/>
             </div>
 
@@ -82,13 +124,12 @@
     grid-gap: 6px;
 
     width: 80vw;
-    height: 50vh;
+    height: 70vh;
 }
-
 
 @media screen and (min-width: 1280px) {
     .container {
-        max-width: 960px;
+        max-width: 1024px;
     }
 }
 
@@ -133,9 +174,17 @@
 }
 
 .prompts-container {
-}
+    .promptItem {
+        height: 50px;
+    }
 
-.promptItem {
-    height: 50px;
+    .add-prompt {
+        border: none;
+    }
+
+    .delete-prompt {
+        background: var(--red-500);
+        border: none;
+    }
 }
 </style>

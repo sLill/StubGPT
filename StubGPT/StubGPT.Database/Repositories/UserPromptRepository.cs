@@ -18,6 +18,6 @@ public class UserPromptRepository: RepositoryBase, IUserPromptRepository
 
     #region Methods..	
     public async Task<List<UserPrompt>?> GetUserPromptsAsync(Guid userId)
-        => await _mainDbContext.UserPrompts.Where(x => x.UserId == userId).ToListAsync();
+        => await _mainDbContext.UserPrompts.Where(x => x.UserId == userId).OrderBy(x => x.CreatedOnUtc).ToListAsync();
     #endregion Methods..
 }
