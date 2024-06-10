@@ -13,8 +13,12 @@ import { fab } from '@fortawesome/free-brands-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 library.add(fas, far, fab);
 
-
 const app = createApp(App);
 app.use(primevuePlugins);
 app.component('FontAwesomeIcon', FontAwesomeIcon);
+
+app.config.errorHandler = function (error, vm, info) {
+    app.config.globalProperties.$toast.add({ severity: 'error', summary: info, detail: `${error}: ${info}`, life: 5000 });
+};
+
 app.mount('#app');

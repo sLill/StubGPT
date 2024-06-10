@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, computed, onMounted, onUnmounted } from 'vue';
+    import { ref, onErrorCaptured, computed, onMounted, onUnmounted } from 'vue';
     import useEndpointService from './composables/services/useEndpointService.js';
     import useDialogService from './composables/services/useDialogService.js';
     import { useToast } from 'primevue/usetoast';
@@ -13,9 +13,9 @@
     const dialogService = useDialogService();
     const toast = useToast();
 
+    const isConnected = ref(true);
     const conversationContainer = ref();
     const scrollPanelHeight = ref('auto');
-
     const conversation = ref([]);
     const systemMessage = ref('You are a helpful assistant');
     const systemMessageFocused = ref(false);
@@ -23,11 +23,17 @@
     const message = ref('');
     const messageInputDisabled = ref(false);
 
-
     // Methods
-    // const showSettingsDialog = () => {
+    onErrorCaptured((err, instance, info) => {
+        console.error('Global Error Handler:', err, instance, info)
+        toast.add({ severity: 'error', summary: null, detail: `${err}: ${info}`, life: 3000 });
+        return false
+    });
 
-    // };
+    const ping = async () => {
+        let pingResponse = await endpointService.getData('/api/v1/system/ping');
+        isConnected.value = pingResponse?.status == 200;
+    };
 
     const showPromptShortcutsDialog = () => {
         dialogService.showDynamicDialog({ 
@@ -74,8 +80,10 @@
 
     const initialize = async () => {
         const getLastSystemPromptResponse = await endpointService.getData('/api/v1/message/getLastSystemPrompt');
-        if (getLastSystemPromptResponse && getLastSystemPromptResponse.status == 200)
-            systemMessage.value = getLastSystemPromptResponse.data.prompt;
+        if (getLastSystemPromptResponse && getLastSystemPromptResponse.status == 200) {
+            const lastSystemResponseData = await getLastSystemPromptResponse.json();
+            systemMessage.value = await lastSystemResponseData.prompt;
+        }
     };
 
     const updateLayout = () => {
@@ -98,8 +106,10 @@
 
             const response = await endpointService.postData(`/api/v1/message/sendMessage`, { "conversation": conversation.value, "message": message.value });
 
-            if (response && response.status == 200)
-                conversation.value.push({ role: "assistant", content: response.data.response });
+            if (response && response.status == 200) {
+                const responseData = await response.json();
+                conversation.value.push({ role: "assistant", content: responseData.response });
+            }
 
             messageInputDisabled.value = false;
         }
@@ -127,6 +137,8 @@
 
         updateLayout();
 
+        await ping();
+
         if (await isAuthenticated())
             await initialize();
         else
@@ -136,10 +148,14 @@
     onUnmounted(() => {
         window.removeEventListener('resize', updateLayout);
     });
+
 </script>
 
 <template>
     <div class="wrapper">
+        <div style="position: absolute; top: 10px; right: 10px;">
+            <FontAwesomeIcon :icon="isConnected ? ['fas', 'check'] : ['fas', 'x']" />
+        </div>
         <div class="chat-container">
             <div ref="conversationContainer" class="conversation-container">
                 <ScrollPanel :style="{ padding: '0 40px', height: scrollPanelHeight }">

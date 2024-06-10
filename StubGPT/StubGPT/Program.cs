@@ -80,6 +80,7 @@ public class Program
         {
             MessageEndpoints.Register(endpoints);
             UserEndpoints.Register(endpoints);
+            SystemEndpoints.Register(endpoints);
         });
 
         CheckAndPerformDatabaseMigrations(app);
