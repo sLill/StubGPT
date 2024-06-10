@@ -5,7 +5,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import primevuePlugins from './primevue-plugins';
 
-//FontAwesome
+// FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';

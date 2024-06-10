@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, onErrorCaptured, computed, onMounted, onUnmounted } from 'vue';
+    import { ref, computed, onMounted, onUnmounted } from 'vue';
     import useEndpointService from './composables/services/useEndpointService.js';
     import useDialogService from './composables/services/useDialogService.js';
     import { useToast } from 'primevue/usetoast';
@@ -16,6 +16,7 @@
     const isConnected = ref(true);
     const conversationContainer = ref();
     const scrollPanelHeight = ref('auto');
+
     const conversation = ref([]);
     const systemMessage = ref('You are a helpful assistant');
     const systemMessageFocused = ref(false);
@@ -23,13 +24,8 @@
     const message = ref('');
     const messageInputDisabled = ref(false);
 
-    // Methods
-    onErrorCaptured((err, instance, info) => {
-        console.error('Global Error Handler:', err, instance, info)
-        toast.add({ severity: 'error', summary: null, detail: `${err}: ${info}`, life: 3000 });
-        return false
-    });
 
+    // Methods
     const ping = async () => {
         let pingResponse = await endpointService.getData('/api/v1/system/ping');
         isConnected.value = pingResponse?.status == 200;
@@ -80,10 +76,8 @@
 
     const initialize = async () => {
         const getLastSystemPromptResponse = await endpointService.getData('/api/v1/message/getLastSystemPrompt');
-        if (getLastSystemPromptResponse && getLastSystemPromptResponse.status == 200) {
-            const lastSystemResponseData = await getLastSystemPromptResponse.json();
-            systemMessage.value = await lastSystemResponseData.prompt;
-        }
+        if (getLastSystemPromptResponse && getLastSystemPromptResponse.status == 200)
+            systemMessage.value = getLastSystemPromptResponse.data.prompt;
     };
 
     const updateLayout = () => {
@@ -106,10 +100,8 @@
 
             const response = await endpointService.postData(`/api/v1/message/sendMessage`, { "conversation": conversation.value, "message": message.value });
 
-            if (response && response.status == 200) {
-                const responseData = await response.json();
-                conversation.value.push({ role: "assistant", content: responseData.response });
-            }
+            if (response && response.status == 200)
+                conversation.value.push({ role: "assistant", content: response.data.response });
 
             messageInputDisabled.value = false;
         }
@@ -148,7 +140,6 @@
     onUnmounted(() => {
         window.removeEventListener('resize', updateLayout);
     });
-
 </script>
 
 <template>

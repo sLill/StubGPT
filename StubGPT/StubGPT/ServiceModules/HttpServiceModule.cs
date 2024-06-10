@@ -17,7 +17,7 @@ public class HttpServiceModule : IServiceModule
 
         services.AddCors(options =>
         {
-            options.AddPolicy("AllowAnyOrigin", builder =>
+            options.AddPolicy("AllowAll", builder =>
             {
                 builder.AllowAnyOrigin()
                        .AllowAnyMethod()

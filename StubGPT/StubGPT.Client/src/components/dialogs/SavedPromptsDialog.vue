@@ -19,8 +19,7 @@
     // Methods
     const loadPrompts = async() => {
         const savedPromptsResponse = await endpointService.getData('/api/v1/user/getSavedPrompts');
-        const savedPromptsData = await savedPromptsResponse.json();
-        savedPrompts.value = savedPromptsData.prompts;
+        savedPrompts.value = savedPromptsResponse.data.prompts;
     };
 
     const cancel = () => { 

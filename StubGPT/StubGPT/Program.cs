@@ -66,12 +66,12 @@ public class Program
         }
 
         app.UseForwardedHeaders();
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection();
         app.UseDefaultFiles();
         app.UseStaticFiles();
         app.UseRouting();
 
-        app.UseCors("AllowAnyOrigin");
+        app.UseCors("AllowAll");
         app.UseMiddleware<UserMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();

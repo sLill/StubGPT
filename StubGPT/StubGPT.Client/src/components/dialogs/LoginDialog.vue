@@ -10,9 +10,8 @@
 
     const tryLogin = async () => { 
         const response = await endpointService.postData(`/api/v1/user/login`, { "username": username.value, "password": password.value });
-        if (response && response.status == 200) {
-            const responseData = await response.json();
-            dialogRef.value.options.callbacks.loginSuccess(responseData.sessionToken);
+        if (response && response.status == 200 && response.data) {
+            dialogRef.value.options.callbacks.loginSuccess(response.data.sessionToken);
             dialogRef.value.close();
         }
         else 

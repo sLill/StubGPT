@@ -3,68 +3,41 @@ import axios from 'axios';
 import { getCookie } from '../../composables/utils/webUtils.js';
 
 export default function useEndpointService() {
-    const baseUrl = 'https://stubgpt.com:5111';
-    // const baseUrl = 'https://localhost:5111';
-
-    // async function getData(endpoint) {
-    //     const response = ref(null);
-
-    //     try 
-    //     {
-    //         const client = axios.create({ baseURL: 'https://stubgpt.com:5111' });
-    //         // const client = axios.create({ baseURL: 'https://localhost:5111' });
-    //         const sessionToken = getCookie('SessionToken');
-    //         const headers = sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : { };
-    //         response.value = await client.get(endpoint, { headers: headers });
-    //     } 
-    //     catch (err) {
-    //         console.log(err);
-    //     }
-
-    //     return response.value;
-    // }
-
-    // async function postData(endpoint, data) {
-    //     const response = ref(null);
-
-    //     try 
-    //     {
-    //         const client = axios.create({ baseURL: 'https://stubgpt.com:5111', headers: { 'Content-Type': 'application/json' } });
-    //         // const client = axios.create({ baseURL: 'https://localhost:5111', headers: { 'Content-Type': 'application/json' } });
-    //         const sessionToken = getCookie('SessionToken');
-    //         const headers = sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : { };
-    //         response.value = await client.post(endpoint, data, { headers: headers });
-    //     } 
-    //     catch (err) {
-    //         console.log(err);
-    //     }
-
-    //     return response.value;
-    // }
+     const baseUrl = 'https://stubgpt.com';
+     //const baseUrl = 'https://localhost:5111';
 
     async function getData(endpoint) {
-        const sessionToken = getCookie('SessionToken');
+        const response = ref(null);
 
-        const options = {
-            method: 'GET',
-            headers: sessionToken ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` } : { 'Content-Type': 'application/json' },
-          };
+        try 
+        {
+            const client = axios.create({ baseURL: baseUrl });
+            const sessionToken = getCookie('SessionToken');
+            const headers = sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : { };
+            response.value = await client.get(endpoint, { headers: headers });
+        } 
+        catch (err) {
+            console.log(err);
+        }
 
-        const response = await fetch(baseUrl + endpoint, options);
-        return response;
+        return response.value;
     }
 
     async function postData(endpoint, data) {
-        const sessionToken = getCookie('SessionToken');
+        const response = ref(null);
 
-        const options = {
-            method: 'POST',
-            headers: sessionToken ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` } : { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          };
+        try 
+        {
+            const client = axios.create({ baseURL: baseUrl, headers: { 'Content-Type': 'application/json' } });
+            const sessionToken = getCookie('SessionToken');
+            const headers = sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : { };
+            response.value = await client.post(endpoint, data, { headers: headers });
+        } 
+        catch (err) {
+            console.log(err);
+        }
 
-          const response = await fetch(baseUrl + endpoint, options);
-          return response;
+        return response.value;
     }
 
     return { getData, postData };
